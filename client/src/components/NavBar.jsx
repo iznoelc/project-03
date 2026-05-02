@@ -1,45 +1,80 @@
+import { IoPersonCircleOutline } from "react-icons/io5";
+import { FaBell, FaSearch } from "react-icons/fa";
+import { GiFallingStar } from "react-icons/gi";
+
+import useAuth from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
 export default function NavBar(){
-    return (
+    const navigate = useNavigate();
+    const { loggedIn, signOutUser } = useAuth();
+
+    // nav bar if the user is not logged in
+    if (!loggedIn) return (
         <div className="navbar bg-base-100 shadow-sm">
-            <div className="navbar-start">
-                <div className="dropdown">
-                <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
+        <div className="navbar-start">
+            <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
+        </div>
+        <div className="navbar-center">
+            <ul className="menu px-1">
+                <button className="btn btn-ghost" onClick={() => navigate("/explore")}><FaSearch /></button>
+            </ul>
+        </div>
+        <div className="navbar-end">
+            <div className="dropdown dropdown-end">
+                <div className="flex gap-2">
+                    <button className="btn btn-primary btn-outline" onClick={() => navigate("/login")}>Login</button>
+                    <button className="btn btn-primary" onClick={() => navigate("/signup")}>Sign Up</button>
                 </div>
-                <ul
-                    tabIndex="-1"
-                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                    <li><a>Item 1</a></li>
-                    <li>
-                    <a>Parent</a>
-                    <ul className="p-2">
-                        <li><a>Submenu 1</a></li>
-                        <li><a>Submenu 2</a></li>
-                    </ul>
-                    </li>
-                    <li><a>Item 3</a></li>
-                </ul>
+            </div>
+        </div>
+        </div>
+    )
+
+    // nav bar if the user is logged in
+    if (loggedIn) return (
+        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar-start">
+            <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
+        </div>
+        <div className="navbar-center">
+            <ul className="menu sm:menu-vertical lg:menu-horizontal px-1">
+                <button className="btn btn-ghost" onClick={() => navigate("/explore")}><FaSearch /></button>
+            </ul>
+        </div>
+        <div className="navbar-end">
+            <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                <div className="indicator">
+                <FaBell className="text-xl"/>
+                <span className="badge badge-sm indicator-item">8</span>
                 </div>
-                <a className="btn btn-ghost text-xl">daisyUI</a>
             </div>
-            <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1">
-                <li><a>Item 1</a></li>
-                <li>
-                    <details>
-                    <summary>Parent</summary>
-                    <ul className="p-2 bg-base-100 w-40 z-1">
-                        <li><a>Submenu 1</a></li>
-                        <li><a>Submenu 2</a></li>
-                    </ul>
-                    </details>
-                </li>
-                <li><a>Item 3</a></li>
-                </ul>
+            <div
+                tabIndex={0}
+                className="card card-compact dropdown-content bg-base-100 z-1 mt-3 w-52 shadow">
+                <div className="card-body">
+                <span className="text-lg font-bold">8 Items</span>
+                <span className="text-info">Subtotal: $999</span>
+                <div className="card-actions">
+                    <button className="btn btn-primary btn-block">View cart</button>
+                </div>
+                </div>
             </div>
-            <div className="navbar-end">
-                <a className="btn">Button</a>
             </div>
+            <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                <IoPersonCircleOutline className="text-4xl" />
+            </div>
+            <ul
+                tabIndex="-1"
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li><a>Profile</a></li>
+                <li><a>Dashboard</a></li>
+                <li><a className="btn" onClick={signOutUser}>Logout</a></li>
+            </ul>
+            </div>
+        </div>
         </div>
     )
 }

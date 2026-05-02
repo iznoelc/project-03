@@ -25,7 +25,7 @@ export default function SignUpPage(){
         role: "creator",
     });
 
-    const pwMatch = formData.password === formData.confirmPassword; // make sure password and confirm password fields match)
+    const pwMatch = formData.password === formData.confirmPassword; // make sure password and confirm password fields match
 
     // update text fields accordingly when user types
     const handleChange = (event) => {
@@ -38,10 +38,11 @@ export default function SignUpPage(){
         }));
     };
 
+    // handle sign up with email and password
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!pwMatch) return; // return if user's passwords do not match 
-        console.log("SIGN UP FORM SUBMITTED: ", formData);
+        console.log("[SIGN UP FORM SUBMITTED]: ", formData);
         setSignUpLoading(true);
         try {
             const userCredential = await createUser(formData.email, formData.password);
@@ -57,12 +58,12 @@ export default function SignUpPage(){
 
             // database update will go here
 
-            setSignUpLoading(false);
             navigate("/", { replace: true });
         } catch (error) {
+            alert("Error creating account, please try again!");
             console.log("Error creating user: ", error.message);
         }
-        
+        setSignUpLoading(false);
     }
     
     if (signUpLoading) return <FallbackElement />

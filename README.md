@@ -7,4 +7,4 @@ A full stack character managing website.
 - Esperanza Paulino
 
 ## ASSETS
-- [Site Icon](https://www.svgrepo.com/svg/500106/cat)
+- [Site Icon](https://www.svgrepo.com/svg/156619/telescope)
