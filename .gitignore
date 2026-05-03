@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .env
+constellation-7f808-firebase-admin.json
 
 # Editor directories and files
 .vscode/*

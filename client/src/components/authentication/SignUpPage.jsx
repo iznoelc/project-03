@@ -11,7 +11,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function SignUpPage(){
     const navigate = useNavigate();
-    const { createUser, loggedIn } = useAuth();
+    const { createUser, loggedIn, fetchUser } = useAuth();
     const [signUpLoading, setSignUpLoading] = useState(false);
 
     const [passwordVisibility, setPasswordVisibility] = useState(false); // password visibility 
@@ -23,6 +23,7 @@ export default function SignUpPage(){
         password: "",
         confirmPassword: "",
         role: "creator",
+        accountStatus: "active",
     });
 
     const pwMatch = formData.password === formData.confirmPassword; // make sure password and confirm password fields match
@@ -38,9 +39,42 @@ export default function SignUpPage(){
         }));
     };
 
+    const handleCreateUserInDatabase = async (token, user, formData) => {
+        try {
+            const postRes = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+            method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    displayName: formData.displayName,
+                    role: formData.role,
+                    accountStatus: formData.accountStatus,
+                }),
+            });
+
+            if (!postRes.ok){
+                throw new Error(`[ERROR CREATING USER IN DATABASE] Status: ${postRes.status}`);
+            }
+            console.log("Post completed successfully")
+
+        } catch (error){
+            console.error("[ERROR CREATING USER IN THE DATABASE, DELETING THEM FROM FIREBASE]: ", error);
+            if (user) {
+                try {
+                    await user.delete();
+                } catch (deleteError) {
+                    console.error("[ERROR DELETING USER FROM FIREBASE:]", deleteError);   
+                }
+            }
+        }
+    }
+
     // handle sign up with email and password
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async () => {
+        // event.preventDefault();
         if (!pwMatch) return; // return if user's passwords do not match 
         console.log("[SIGN UP FORM SUBMITTED]: ", formData);
         setSignUpLoading(true);
@@ -52,12 +86,17 @@ export default function SignUpPage(){
             console.log(user);
             console.log("loggedIn: " + loggedIn);
 
+            // create the user in the database
+            const token = await user.getIdToken();
+            await handleCreateUserInDatabase(token, user, formData);
+
             await updateProfile(user, {
                 displayName: formData.displayName,
             });
 
-            // database update will go here
+            await fetchUser(user.uid, token, formData); // update user in auth provider ASAP
 
+            alert("Successful signup!");
             navigate("/", { replace: true });
         } catch (error) {
             alert("Error creating account, please try again!");
