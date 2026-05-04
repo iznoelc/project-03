@@ -19,10 +19,14 @@ app.use(cors());
 // routes
 const userRoutes = require("./src/routes/user.routes");
 
+const characterRoutes = require("./src/routes/character.routes")
+
 // connect to the database
 connectDB(); 
 
 app.use("/users", userRoutes); // use the user routes
+
+app.use("/characters", characterRoutes); // use the character routes
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
