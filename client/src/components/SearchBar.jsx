@@ -1,20 +1,22 @@
-import { useState, useMemo, useEffect } from "react";
 import DataSorter from "../utils/DataSorter";
 import Search from "../utils/Search";
-import { FaRegStar, FaStar } from "react-icons/fa";
+import { useState, useMemo, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
-import { toast, ToastContainer } from "react-toastify";
 import { Link } from "react-router-dom";
 
 /**
- * Explore.jsx
+ * SearchBar.jsx
  * 
- * A page where users can search though the characters on the site
+ * A function that is used by other pages to generate a search bar
+ * 
+ * Must be fed the data for the search bar
  * 
  * @author Landon Chapin
  */
 
-export default function Explore(){
+
+export default function SearchBar(Data){
+
 
     const { user,} = useAuth(); 
 
@@ -63,26 +65,6 @@ export default function Explore(){
         fetchData(user)
     }, [user]);
 
-
-
-    async function fetchData( user) {
-        try {
-            const token = await user.getIdToken();
-
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/characters`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const data = await res.json();
-            console.log("FETCHED Character:", data);
-
-            setData(data);
-        } catch (err) {
-            console.error("Failed to fetch Character:", err);
-        }
-    }
 
 
 
@@ -146,7 +128,7 @@ export default function Explore(){
         
         {/* To be displayed if data is not loading and the current data length is bigger than zero */}
         {sortedData.length > 0 && (
-            <ul list bg-base-100 rounded-box shadow-md> 
+            <div className="grid grid-cols-5 bg-base-100 rounded-box shadow-md" > 
 
             {sortedData.slice(currentPage * numShow, numShow + (currentPage * numShow) ).map((d, index) => (
                 
@@ -194,7 +176,7 @@ export default function Explore(){
 
                 </div>
             ))}
-            </ul>
+            </div>
         )}
         <div className="flex justify-center gap-4 p-8">
           <button
@@ -228,4 +210,6 @@ export default function Explore(){
         </>
 
     )
+
+
 }
