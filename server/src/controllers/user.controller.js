@@ -6,13 +6,13 @@
  * @author Izzy Carlson
  */
 const User = require("../models/user.model");
-const validator = require("../validators/user.validator");
+const userValidator = require("../validators/user.validator");
 const admin = require("firebase-admin");
 
 // POST a new user to the database
 async function createUser(req, res) {
     try {
-        const { error, value } = validator.validateUser(req.body);
+        const { error, value } = userValidator.validateUser(req.body);
 
         // make sure fields are properly validated before creating the user
         if (error) {

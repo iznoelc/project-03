@@ -1,5 +1,5 @@
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { FaBell, FaSearch } from "react-icons/fa";
+import { FaBell, FaSearch, FaPlus } from "react-icons/fa";
 import { GiFallingStar } from "react-icons/gi";
 
 import useAuth from "../hooks/useAuth";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function NavBar(){
     const navigate = useNavigate();
-    const { loggedIn, signOutUser, user } = useAuth();
+    const { loggedIn, signOutUser, user, role } = useAuth();
 
     // nav bar if the user is not logged in
     if (!loggedIn) return (
@@ -41,6 +41,9 @@ export default function NavBar(){
             <ul className="menu sm:menu-vertical lg:menu-horizontal px-1">
                 <button className="btn btn-ghost" onClick={() => navigate("/explore")}><FaSearch /></button>
             </ul>
+            <button className="btn btn-primary" onClick={() => navigate("/characters/create")}>
+                {window.innerWidth > 640 ? <div className="flex flex-row gap-2 items-center"><FaPlus /><p>New Character</p></div> : <FaPlus />}
+            </button>
         </div>
         <div className="navbar-end">
             <div className="dropdown dropdown-end">
@@ -72,7 +75,14 @@ export default function NavBar(){
                 <li><a className="justify-between" onClick={() => navigate(`/profile/${user.uid}`, { replace : true })}>
                     Profile
                 </a></li>
-                <li><a>Dashboard</a></li>
+                <li><a onClick={() => navigate(
+                        role === "admin" ? "/admin-dashboard" :
+                        role === "creator" ? "creator-dashboard" :
+                        "/",
+                        { replace: true }
+                        )}>
+                    Dashboard
+                </a></li>
                 <li><a className="btn" onClick={signOutUser}>Logout</a></li>
             </ul>
             </div>
