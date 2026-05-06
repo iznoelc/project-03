@@ -27,7 +27,6 @@ async function createCharacter(req, res) {
         // Required field validation
         if (!owner_uid) return res.status(400).json({ error: "Owner UID is required" });
         if (!name) return res.status(400).json({ error: "Character name is required" });
-        if (!bio) return res.status(400).json({ error: "Character bio is required" });
         if (!creator) return res.status(400).json({ error: "Creator is required" });
 
         const character = new Character({

@@ -5,19 +5,20 @@ import { createCharacter } from "../../utils/CreateDeleteCharacter";
 
 export default function CreateCharacter(){
     const { user } = useAuth();
-    const userID = user.uid;
 
     const [characters, setCharacters] = useState([]); // Data for the characters being fetched
+
+    
 
 
 
     const [formData, setFormData] = useState({
-        owner_uid: user.uid,
+        owner_uid: user?.uid || "",
         name: "",
         bio: "",
         creator: "",
         iconImg: "",
-        vis: "",
+        vis: "private",
         exportable: false,
         link: "",
         referenceImg: "",
@@ -48,7 +49,7 @@ export default function CreateCharacter(){
     };    
 
     // Function to call create character from the createDeleteCharacter util
-    const addJob = async () => {
+    const addCharacter = async () => {
 
         const {
         owner_uid,
@@ -69,20 +70,19 @@ export default function CreateCharacter(){
         }
         if (
         !name.trim() ||
-        !creator.trim() ||
-        !deadline
+        !creator.trim()
+        
         ) {
-        console.log("Name=" + name, "institution=", creator, "deadline=", deadline);
-        errorNotify("Job title, institution, and deadline are required.");
+        errorNotify("Character Name and Creator Name are required.");
         return;
         }
 
         // Duplicate check
-        fetchData(user)
+        await fetchData(user);
         const alreadyExists = characters.some(character => {
             return (
-                character.name.toLowerCase() === formData.name.trim().toLowerCase() &&
-                character.creator.toLowerCase() === formData.creator.trim().toLowerCase()
+                character.name.toLowerCase() === name.trim().toLowerCase() &&
+                character.creator.toLowerCase() === creator.trim().toLowerCase()
             );
         });
 
@@ -95,7 +95,7 @@ export default function CreateCharacter(){
         
 
 
-        createCharacter(user, formData)
+        await createCharacter(user, formData)
 
         // Reset form
         setFormData({
@@ -104,7 +104,7 @@ export default function CreateCharacter(){
         bio: "",
         creator: "",
         iconImg: "",
-        vis: "",
+        vis: "private",
         exportable: false,
         link: "",
         referenceImg: "",
@@ -138,7 +138,7 @@ export default function CreateCharacter(){
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        
       }
 
     }
@@ -149,6 +149,73 @@ export default function CreateCharacter(){
         <>
         <h1>This is the page to create a new character.</h1>
 
+
+        <div >
+
+            {/* Job Title */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Character Name</legend>
+              <input
+                type="text"
+                className="input w-full"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. John Fantasy"
+              />
+            </fieldset>
+
+            {/* Category */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Character Biography</legend>
+              <input
+                type="text"
+                className="input w-full"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                placeholder="e.g. John Fantasy once lived..."
+              />
+            </fieldset>
+
+            {/* Location */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Creator</legend>
+              <input
+                type="text"
+                className="input w-full"
+                name="creator"
+                value={formData.creator}
+                onChange={handleChange}
+              />
+            </fieldset>
+
+
+            {/* Tags */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">
+                Character Tags (comma separated)
+              </legend>
+              <input
+                type="text"
+                className="input w-full"
+                onChange={handleTagsChange}
+                placeholder=""
+              />
+            </fieldset>
+
+
+            {/* Actions */}
+            <div className="modal-action justify-center">
+              <button
+                className="btn btn-primary"
+                onClick={addCharacter}
+              >
+                Create Character
+              </button>
+
+            </div>
+          </div>
 
 
         </>

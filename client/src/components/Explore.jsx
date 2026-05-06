@@ -54,7 +54,7 @@ export default function Explore(){
         const data = await res.json();
         console.log("Fetched characters:", data);
 
-        setCharacters(data);
+        setCharacters(data.filter(data => data.vis === "public"));
       } catch (err) {
         console.error(err);
       } finally {

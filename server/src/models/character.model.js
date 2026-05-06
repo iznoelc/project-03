@@ -17,7 +17,7 @@ const characterSchema = new mongoose.Schema({
         type: String, required: true
     },
     bio: {
-        type: String, required: true
+        type: String, required: false
     },
     creator: {
         type: String, required: true,
