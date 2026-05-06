@@ -5,6 +5,8 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 import { toast, ToastContainer } from "react-toastify";
 import { Link } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
+
 
 /**
  * Explore.jsx
@@ -16,46 +18,13 @@ import { Link } from "react-router-dom";
 
 export default function Explore(){
 
-    const { user,} = useAuth(); 
+  const { user } = useAuth();
+
+  const [characters, setCharacters] = useState([]); // Data for the characters being fetched
+  
+  const [loading, setLoading] = useState(true);
 
 
-    // Number of entries being shown to the user
-    const [numShow, setNumShow] = useState(10);
-    const [currentPage, setCurrentPage] = useState(0);
-
-
-    const [data, setData] = useState(null); // the job data
-    const [sortType, setSortType] = useState("Date"); // default sort type
-    const [ascending, setAscending] = useState(true); // default sort direction 
-
-    const [searchQuery, setSearchQuery] = useState(""); // default search query - empty string
-    const [searchType, setSearchType] = useState("Location"); //default search type
-
-
-
-    /* use useMemo to cache the result of Search that its only updated when its dependencies change. 
-       if searchQuery, searchType, or data are updated, the result of Search will also update to display the 
-       new filteredData.
-     */ 
-    const filteredData = useMemo(() => {
-        if (!data) return []; // if there is no data, return null for filteredData
-        return Search(data, searchQuery, searchType);
-    }, [searchQuery, searchType, data]);
-      
-
-    /* use useMemo to cache the result of DataSorter (jnside sortedData) that its only updated when its dependencies change. 
-       if data, sortType, or ascending are updated, the result of DataSorter will also update to display the 
-       new sortedData.
-     */ 
-    const sortedData = useMemo(() => {
-        // if there is no filtered data, just use the normal data list
-        if (!filteredData){
-            console.log("Data is null");
-            return DataSorter(sortType, ascending, data);
-        }
-        // otherwise, sort the filtered data
-        return DataSorter(sortType, ascending, filteredData);
-    }, [filteredData, sortType, ascending, data]);
 
         /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
     useEffect(() => {
@@ -69,163 +38,50 @@ export default function Explore(){
         try {
             const token = await user.getIdToken();
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/characters`, {
+            const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/characters`,
+            {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
                 },
-            });
-
-            const data = await res.json();
-            console.log("FETCHED Character:", data);
-
-            setData(data);
-        } catch (err) {
-            console.error("Failed to fetch Character:", err);
+            }
+        );
+        
+        if (!res.ok) {
+          throw new Error("Failed to fetch characters");
         }
+
+        const data = await res.json();
+        console.log("Fetched characters:", data);
+
+        setCharacters(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+
+    }
+    
+    if (loading) {
+        return (
+        <div className="flex justify-center items-center p-16">
+            <span className="loading loading-spinner loading-lg"></span>
+        </div>
+        );
     }
 
 
 
     return (
         <>
-        <div className="flex items-center justify-center gap-5 w-screen">
-            {/* search bar */}
-            <select onChange={(e) => setSearchType(e.target.value)} className="secondary-font">
-                <option value="location">Name</option>
-                <option value="category">Creators</option>
-                <option value="salary">Tags</option>
-            </select>
-            <label className="input input-bordered input-m w-lg">
-                <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
-                    <g
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    strokeWidth="2.5"
-                    fill="none"
-                    stroke="currentColor"
-                    >
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                    </g>
-                </svg>
-                <input type="search" required placeholder="Search for Characters..." onChange={(e) => setSearchQuery(e.target.value)}/>
-            </label>
-            {/* drop down menu for search type */}
-            <div className="dropdown dropdown-hover">
-                <div tabIndex="0" role="button" className="btn m-1 secondary-font">SORT...</div>
-                    <ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-lg">
-                        <li><a onClick={() => setSortType("name")}>By Character Name</a></li>
-                        <li><a onClick={() => setSortType("creator")}>By Creator</a></li>
-                        <li><a onClick={() => setSortType("tags")}>By Tag</a></li>
-                    </ul>
-            </div>
-            {/* ascending/descending checkbox */}
-            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-32 border p-4">
-                <legend className="fieldset-legend secondary-font">Sorting Options</legend>
-                <label className="label secondary-font">
-                    <input type="checkbox" defaultChecked className="checkbox" onChange={() => setAscending(!ascending)}/>
-                    Ascending Order
-                </label>
-                <label className="label secondary-font"> Number of Characters Shown </label>
-                  <select
-                    value={numShow}
-                    className="select"
-                    onChange={(e) => {
-                      setNumShow(Number(e.target.value));
-                      setCurrentPage(0); // reset pagination
-                    }}
-                  >
-                    <option value={10}>10</option>
-                    <option value={15}>15</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-            </fieldset>
-        </div>
-        
-        {/* To be displayed if data is not loading and the current data length is bigger than zero */}
-        {sortedData.length > 0 && (
-            <ul list bg-base-100 rounded-box shadow-md> 
+        <h1 className="primary-font text-4xl text-center my-8">
+            Explore Characters
+        </h1>
 
-            {sortedData.slice(currentPage * numShow, numShow + (currentPage * numShow) ).map((d, index) => (
-                
-                <div key={index} className="relative card w-screen bg-base-100 card-xs shadow-sm">
- 
-  
-                    {/* content */}
-
-                    <div className="card-body">
-                        <div className="grid grid-cols-2 gap-2 max-w-screen p-8 grid-col-grow">
-                            <div className="flex flex-col gap-2">
-                                {/* put the title and description of the movie in the cards */}
-                                <Link to={`/characters/${d._id}`} className="no-underline">
-                                <h2 className="card-title primary-font text-2xl hover:underline">
-                                    {d.name}
-                                </h2>
-                                <h3 className="text-lg">{d.creator}</h3>
-                                </Link>
-                                <div className="flex flex-row gap-2">
-                                <div class="badge badge-outline badge-primary">{d.tags}</div>
-                                </div>
-                                
-                            </div>
-                            <div className="justify-end card-actions">
-                                <ul list>
-                                    
-                                    <h2 className="card-title primary-font text-1xl">APPLICATION DEADLINE: {d.deadline}</h2>  
-                                    <div>                                              
-                                        {/*
-                                        <div className="justify-end card-actions">
-                                        
-                                            <button className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
-                                            ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}
-                                                onClick={isFavorite(d._id) ? () => removeFromFav(d.job_title, d._id) : () => addToFav(d.job_title, d)}>
-                                                {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
-                                            </button>
-                                        </div>
-                                        */}
-                                    </div>   
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                                            
-
-                </div>
-            ))}
-            </ul>
-        )}
-        <div className="flex justify-center gap-4 p-8">
-          <button
-            className="btn"
-            disabled={currentPage === 0}
-            onClick={() => setCurrentPage(p => p - 1)}
-          >
-            Prev
-          </button>
-
-          <span className="secondary-font">
-            Page {currentPage + 1}
-          </span>
-
-          <button
-            className="btn"
-            disabled={(currentPage + 1) * numShow >= sortedData.length }
-            onClick={() => setCurrentPage(p => p + 1)}
-          >
-            Next
-          </button>
-        </div>
-
-        {/* To be displayed if data is not loading and the current data length is zero (i.e. no search results) */}
-        {sortedData.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-5 p-16">
-                <h1 className="secondary-font text-2xl">No Characters found.</h1>
-            </div>
-        )}
-
+        <SearchBar data={characters} />
         </>
+
 
     )
 }

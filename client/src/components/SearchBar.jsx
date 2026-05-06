@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
  */
 
 
-export default function SearchBar(Data){
+export default function SearchBar({ data: initialData }){
 
 
     const { user,} = useAuth(); 
@@ -26,12 +26,12 @@ export default function SearchBar(Data){
     const [currentPage, setCurrentPage] = useState(0);
 
 
-    const [data, setData] = useState(null); // the job data
-    const [sortType, setSortType] = useState("Date"); // default sort type
+    const [data] = useState(initialData || []);
+    const [sortType, setSortType] = useState("name"); // default sort type
     const [ascending, setAscending] = useState(true); // default sort direction 
 
     const [searchQuery, setSearchQuery] = useState(""); // default search query - empty string
-    const [searchType, setSearchType] = useState("Location"); //default search type
+    const [searchType, setSearchType] = useState("name"); //default search type
 
 
 
@@ -59,23 +59,15 @@ export default function SearchBar(Data){
         return DataSorter(sortType, ascending, filteredData);
     }, [filteredData, sortType, ascending, data]);
 
-        /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
-    useEffect(() => {
-        if (!user) return;
-        fetchData(user)
-    }, [user]);
-
-
-
 
     return (
         <>
         <div className="flex items-center justify-center gap-5 w-screen">
             {/* search bar */}
             <select onChange={(e) => setSearchType(e.target.value)} className="secondary-font">
-                <option value="location">Name</option>
-                <option value="category">Creators</option>
-                <option value="salary">Tags</option>
+                <option value="name">Name</option>
+                <option value="creators">Creators</option>
+                <option value="tags">Tags</option>
             </select>
             <label className="input input-bordered input-m w-lg">
                 <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
@@ -132,13 +124,28 @@ export default function SearchBar(Data){
 
             {sortedData.slice(currentPage * numShow, numShow + (currentPage * numShow) ).map((d, index) => (
                 
-                <div key={index} className="relative card w-screen bg-base-100 card-xs shadow-sm">
+                <div key={d._id} className="relative card w-screen bg-base-100 card-xs shadow-sm">
  
   
                     {/* content */}
+                    
+                    <Link to={`/characters/${d._id}`} className="block">
+                    <div className="card bg-base-100 shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
                         <div className="grid grid-cols-2 gap-2 max-w-screen p-8 grid-col-grow">
+                            {d.iconImg ? (
+                            <img
+                                src={d.iconImg}
+                                alt={d.name}
+                                className="w-full h-40 object-cover rounded-xl"
+                            />
+                            ) : (
+                            <div className="w-full h-40 flex items-center justify-center bg-base-300 rounded-xl">
+                                <span className="text-sm opacity-70">No Image</span>
+                            </div>
+                            )}
+
                             <div className="flex flex-col gap-2">
                                 {/* put the title and description of the movie in the cards */}
                                 <Link to={`/characters/${d._id}`} className="no-underline">
@@ -148,7 +155,17 @@ export default function SearchBar(Data){
                                 <h3 className="text-lg">{d.creator}</h3>
                                 </Link>
                                 <div className="flex flex-row gap-2">
-                                <div class="badge badge-outline badge-primary">{d.tags}</div>
+                                <div className="flex gap-2">
+                                    {d.tags.map((tag, i) => (
+                                    <span
+                                        key={i}
+                                        className="badge badge-outline badge-primary"
+                                    >
+                                        {tag}
+                                    </span>
+                                    ))}
+                                </div>
+
                                 </div>
                                 
                             </div>
@@ -172,7 +189,9 @@ export default function SearchBar(Data){
                             </div>
                         </div>
                     </div>
-                                            
+
+                    </div>
+                    </Link>                    
 
                 </div>
             ))}

@@ -17,6 +17,8 @@ import SignUpPage from "../components/authentication/SignUpPage";
 import LoginPage from "../components/authentication/LoginPage";
 import ForgotPassword from "../components/authentication/ForgotPassword";
 
+import CreateCharacter from "../components/characters/CreateCharacter";
+
 const MainRouter = [
   {
     path: "/",
@@ -37,6 +39,12 @@ const MainRouter = [
         { path: "creator-dashboard",
           element: (
             <CreatorDashboard />
+          )
+        },
+
+        { path: "characters/create",
+          element: (
+            <CreateCharacter />
           )
         },
 
