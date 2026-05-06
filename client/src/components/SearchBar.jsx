@@ -26,7 +26,7 @@ export default function SearchBar({ data: initialData }){
     const [currentPage, setCurrentPage] = useState(0);
 
 
-    const [data] = useState(initialData || []);
+    const data = initialData || [];
     const [sortType, setSortType] = useState("name"); // default sort type
     const [ascending, setAscending] = useState(true); // default sort direction 
 
@@ -66,7 +66,7 @@ export default function SearchBar({ data: initialData }){
             {/* search bar */}
             <select onChange={(e) => setSearchType(e.target.value)} className="secondary-font">
                 <option value="name">Name</option>
-                <option value="creators">Creators</option>
+                <option value="creator">Creators</option>
                 <option value="tags">Tags</option>
             </select>
             <label className="input input-bordered input-m w-lg">
@@ -120,11 +120,11 @@ export default function SearchBar({ data: initialData }){
         
         {/* To be displayed if data is not loading and the current data length is bigger than zero */}
         {sortedData.length > 0 && (
-            <div className="grid grid-cols-5 bg-base-100 rounded-box shadow-md" > 
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4" > 
 
             {sortedData.slice(currentPage * numShow, numShow + (currentPage * numShow) ).map((d, index) => (
                 
-                <div key={d._id} className="relative card w-screen bg-base-100 card-xs shadow-sm">
+                <div key={d._id} className="relative card  bg-base-100 card-xs shadow-sm">
  
   
                     {/* content */}
@@ -133,7 +133,7 @@ export default function SearchBar({ data: initialData }){
                     <div className="card bg-base-100 shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
-                        <div className="grid grid-cols-2 gap-2 max-w-screen p-8 grid-col-grow">
+                        <div className="grid grid-cols-2 gap-2  p-8 grid-col-grow">
                             {d.iconImg ? (
                             <img
                                 src={d.iconImg}
@@ -148,31 +148,31 @@ export default function SearchBar({ data: initialData }){
 
                             <div className="flex flex-col gap-2">
                                 {/* put the title and description of the movie in the cards */}
-                                <Link to={`/characters/${d._id}`} className="no-underline">
+                                <div className="no-underline">
                                 <h2 className="card-title primary-font text-2xl hover:underline">
                                     {d.name}
                                 </h2>
                                 <h3 className="text-lg">{d.creator}</h3>
-                                </Link>
-                                <div className="flex flex-row gap-2">
-                                <div className="flex gap-2">
-                                    {d.tags.map((tag, i) => (
-                                    <span
-                                        key={i}
-                                        className="badge badge-outline badge-primary"
-                                    >
-                                        {tag}
-                                    </span>
-                                    ))}
-                                </div>
-
                                 </div>
                                 
+                                
                             </div>
-                            <div className="justify-end card-actions">
+                            <div className="justify-middle card-actions">
                                 <ul list>
                                     
-                                    <h2 className="card-title primary-font text-1xl">APPLICATION DEADLINE: {d.deadline}</h2>  
+                                    <div className="flex flex-row gap-2">
+                                        <div className="flex gap-2">
+                                            {d.tags.map((tag, i) => (
+                                            <span
+                                                key={i}
+                                                className="badge badge-outline badge-primary"
+                                            >
+                                                {tag}
+                                            </span>
+                                            ))}
+                                        </div>
+
+                                    </div>
                                     <div>                                              
                                         {/*
                                         <div className="justify-end card-actions">

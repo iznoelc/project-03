@@ -8,17 +8,20 @@
 **/
 function DataSorter (Type, Ascending, DataArray){
     let returnArray = [...DataArray];
+    console.log("SORT TYPE:", Type);
 
     switch (Type){
-        case "Tags":{
+        case "tags":{
             returnArray = sortTags(Ascending, returnArray);
             break;
         };
-        case "Name":{
+        case "name":{
+            
             returnArray = sortName(Ascending, returnArray);
             break;
         };
-        case "Creator":{
+        case "creator":{
+            
              returnArray = sortCreator(Ascending, returnArray);
             break;
         };
@@ -33,8 +36,8 @@ function sortName(Ascending, DataArray){
     let returnArray = [...DataArray];
 
     returnArray.sort((a,b) => {
-        let stringA = a.name;
-        let stringB = b.name;
+        let stringA = (a.name || "").toLowerCase();
+        let stringB = (b.name || "").toLowerCase();
         return stringA.localeCompare(stringB);
     });
     if(!Ascending){
@@ -51,8 +54,8 @@ function sortCreator(Ascending, DataArray){ // Sorts by the location of each job
     let returnArray = [...DataArray];
 
     returnArray.sort((a,b) => {
-        let stringA = a.creator;
-        let stringB = b.creator;
+        let stringA = (a.creator || "").toLowerCase();
+        let stringB = (b.creator || "").toLowerCase();
         return stringA.localeCompare(stringB);
     });
     if(!Ascending){
@@ -65,14 +68,23 @@ function sortCreator(Ascending, DataArray){ // Sorts by the location of each job
 function sortTags(Ascending, DataArray){ // Sorts by the location of each job
     let returnArray = [...DataArray];
 
-    returnArray.sort((a,b) => {
-        let stringA = a.name;
-        let stringB = b.name;
+    
+    returnArray.sort((a, b) => {
+        let stringA = (a.tags[0] || "").toLowerCase();
+        let stringB = (b.tags[0] || "").toLowerCase();
+        if (stringA == stringB){
+            stringA = (a.tags[1] || "").toLowerCase();
+            stringB = (b.tags[1] || "").toLowerCase();
+            if (stringA == stringB){
+                stringA = (a.tags[2] || "").toLowerCase();
+                stringB = (b.tags[2] || "").toLowerCase();
+            }
+        }
         return stringA.localeCompare(stringB);
     });
-    if(!Ascending){
-        returnArray.reverse();
-    }
+
+    if (!Ascending) returnArray.reverse();
+
 
     return returnArray;
 }

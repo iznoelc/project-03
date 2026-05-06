@@ -31,6 +31,7 @@ export async function deleteCharacter(character_id, user) {
 
 export async function createCharacter(user, formData) {
     const {
+        owner_uid,
         name,
         bio,
         creator,
@@ -52,7 +53,7 @@ export async function createCharacter(user, formData) {
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                owner_uid: user.uid,
+                owner_uid,
                 name,
                 bio,
                 creator,

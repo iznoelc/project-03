@@ -21,15 +21,13 @@ function Search(data, searchQuery, searchType){
                 return item.name.toLowerCase().includes(value);
 
             case "creator":
-                return item.creator.toLowerCase().includes(value);
+                return (item.creator || "").toLowerCase().includes(value);
 
             case "tags":
                 // Checks if any of three tags include the typed item
-                if(item.tags[0].toString().toLowerCase().includes(value) || item.tags[1].toString().toLowerCase().includes(value) || item.tags[2].toString().toLowerCase().includes(value)){
-                    return true;
-                }
-                else{return false;}
-
+                return item.tags?.some(tag =>
+                        tag.toLowerCase().includes(value)
+                );
 
             default:
                 return true;
