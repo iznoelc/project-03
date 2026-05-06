@@ -22,6 +22,7 @@
   // passing a children prop -->
   const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // the user
+    const [dbUser, setDbUser] = useState(null);
     const [role, setRole] = useState(null); // their role (admin or creator)
     const [accountStatus, setAccountStatus] = useState(null); // their account status (active [default] or disabled)
     const [favChars, setFavChars] = useState([]);
@@ -87,6 +88,7 @@
           setRole(data.user?.role || data.role);
           setAccountStatus(data.user?.accountStatus || data.accountStatus);
           setFavChars(data.user?.favChars || data.favChars);
+          setDbUser(data.user);
         } catch (error) {
           console.log("[ERROR FETCHING USER ROLE, ACCOUNT STATUS, OR FAVORITE CHARACTERS]: ", error.message);
           setRole(null);
@@ -115,6 +117,7 @@
       setRole(data.user?.role || data.role);
       setAccountStatus(data.user?.accountStatus || data.accountStatus);
       setFavChars(data.user?.favChars || data.favChars);
+      setDbUser(data.user);
     };
 
     // prevents error if auth is still loading and the user is trying to access a protected route
@@ -139,6 +142,7 @@
       loading,
       extraDataLoading,
       loggedIn: !!user,
+      dbUser,
     };
     return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
   };

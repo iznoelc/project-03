@@ -2,6 +2,8 @@ import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute"
 import DisabledAccountRoute from "./DisabledAccountRoute";
 
+import UserProfile from "../components/profile/UserProfile";
+
 import FallbackElement from "../components/FallbackElement";
 import Home from "../components/Home";
 import ErrorPage from "../components/ErrorPage";
@@ -101,6 +103,15 @@ const MainRouter = [
           element: (
             <PrivateRoute allowedRoles={["creator", "admin"]}>
               <DisabledAccountPage />
+            </PrivateRoute>
+          )
+        },
+
+        {
+          path: "profile/:uid",
+          element: (
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
+              <UserProfile />
             </PrivateRoute>
           )
         }

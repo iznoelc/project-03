@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function NavBar(){
     const navigate = useNavigate();
-    const { loggedIn, signOutUser } = useAuth();
+    const { loggedIn, signOutUser, user } = useAuth();
 
     // nav bar if the user is not logged in
     if (!loggedIn) return (
@@ -69,7 +69,9 @@ export default function NavBar(){
             <ul
                 tabIndex="-1"
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                <li><a>Profile</a></li>
+                <li><a className="justify-between" onClick={() => navigate(`/profile/${user.uid}`, { replace : true })}>
+                    Profile
+                </a></li>
                 <li><a>Dashboard</a></li>
                 <li><a className="btn" onClick={signOutUser}>Logout</a></li>
             </ul>

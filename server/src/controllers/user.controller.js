@@ -67,5 +67,49 @@ async function getUserByUID(req, res) {
     }
 };
 
+// PATCH to edit a user based on the params sent in the request
+async function updateUser(req, res){
+    try {
+        console.log("[REQ USER FOR USER PATCH REQUEST]: ", req.user);
+        console.log("[REQ BODY FOR USER PATCH REQUEST]: ", req.body);
 
-module.exports = { createUser, getUserByUID, };
+        // find the current user from the patch request
+        const currentUser = await User.findOne({uid: req.user.uid});
+        console.log("[CURRENT USER ROLE FROM USER PATCH REQUEST]: ", currentUser.role);
+        
+        // find the user from the patch request params (the user that should be updated)
+        const user = await User.findOne({uid: req.params.uid});
+
+        const updateFields = {};
+
+        // fields that any user can update (i.e. editing profile or favoriting characters)
+        const allowedFields = ["displayName", "favChars", "pfp", "bio", ];
+
+        for (const key of allowedFields) {
+            if (req.body[key] !== undefined) {
+                updateFields[key] = req.body[key];
+            }
+        }
+
+        // if the user makes a request to edit the accountStatus field, we need to make sure they're an admin
+        if (req.body.accountStatus !== undefined){
+            if (!currentUser) { return res.status(401).json({ error: "Invalid user." })} // no user, return
+            if (currentUser.role !== "admin") // 
+                { return res.status(403).json({ error: "Access denied. The user trying to make this change is not an admin."})}
+            updateFields.accountStatus = req.body.accountStatus;
+        }
+
+        const patched = await User.findOneAndUpdate(
+            { uid: req.params.uid },
+            { $set: updateFields },
+            { returnDocument: "after" }
+        );
+
+        return res.status(200).json({ user: patched });
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+}
+
+
+module.exports = { createUser, getUserByUID, updateUser };

@@ -20,5 +20,6 @@ router.get("/", verifyFirebaseToken, getAllCharacters);
 // delete character by MongoDB _id
 router.delete("/:_id", verifyFirebaseToken, deleteCharacter);
 
+
 module.exports = router;
 
