@@ -46,7 +46,25 @@ export default function CreateCharacter(){
             .map(q => q.trim())
             .filter(Boolean),
         }));
-    };    
+    };   
+    
+        
+    const handleToggle = (e) => {
+        const { name, checked } = e.target;
+
+        if (name === "vis") {
+            setFormData(prev => ({
+            ...prev,
+            vis: ! checked ? "public" : "private"
+            }));
+        } else {
+            setFormData(prev => ({
+            ...prev,
+            [name]: checked
+            }));
+        }
+    };
+
 
     // Function to call create character from the createDeleteCharacter util
     const addCharacter = async () => {
@@ -204,6 +222,62 @@ export default function CreateCharacter(){
               />
             </fieldset>
 
+            <fieldset className="fieldset">
+                <legend className="fieldset-legend">Icon Image URL</legend>
+                <input
+                    type="text"
+                    className="input w-full"
+                    name="iconImg"
+                    value={formData.iconImg}
+                    onChange={handleChange}
+                    placeholder="https://example.com/image.jpg"
+                />
+            </fieldset>
+
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+                <label className="label justify-center">
+                    Public
+                    <input type="checkbox" defaultChecked className="toggle" 
+                        name="vis"
+                        onChange={handleToggle}
+                    />
+                    Private
+                </label>
+            </fieldset>
+
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+                <label className="label justify-center">
+                    Can Export
+                    <input type="checkbox" defaultChecked className="toggle" 
+                        name="exportable"
+                        onChange={handleToggle}
+                    />
+                    Cannot Export
+                </label>
+            </fieldset>
+            
+            <fieldset className="fieldset">
+                <legend className="fieldset-legend">Reference Image URL</legend>
+                <input
+                    type="text"
+                    className="input w-full"
+                    name="referenceImg"
+                    value={formData.referenceImg}
+                    onChange={handleChange}
+                    placeholder="https://example.com/reference.jpg"
+                />
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Link</legend>
+              <input
+                type="text"
+                className="input w-full"
+                name="link"
+                value={formData.link}
+                onChange={handleChange}
+              />
+            </fieldset>
 
             {/* Actions */}
             <div className="modal-action justify-center">
