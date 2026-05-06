@@ -1,5 +1,6 @@
-// import PrivateRoute from "./PrivateRoute";
-// import PublicRoute from "./PublicRoute"
+import PrivateRoute from "./PrivateRoute";
+import PublicRoute from "./PublicRoute"
+import DisabledAccountRoute from "./DisabledAccountRoute";
 
 import FallbackElement from "../components/FallbackElement";
 import Home from "../components/Home";
@@ -18,6 +19,7 @@ import LoginPage from "../components/authentication/LoginPage";
 import ForgotPassword from "../components/authentication/ForgotPassword";
 
 import CreateCharacter from "../components/characters/CreateCharacter";
+import DisabledAccountPage from "../components/DisabledAccountPage";
 
 const MainRouter = [
   {
@@ -28,8 +30,6 @@ const MainRouter = [
         Component: Home,
         HydrateFallback: FallbackElement,
       },
-        { path: "*", Component: ErrorPage },
-
         { path: "explore",
           element: (
             <Explore />
@@ -38,48 +38,75 @@ const MainRouter = [
 
         { path: "creator-dashboard",
           element: (
-            <CreatorDashboard />
+            <PrivateRoute allowedRoles={["creator"]}>
+              <CreatorDashboard />
+            </PrivateRoute>
           )
         },
 
         { path: "characters/create",
           element: (
-            <CreateCharacter />
+            <PrivateRoute allowedRoles={["creator"]}>
+              <DisabledAccountRoute>
+                <CreateCharacter />
+              </DisabledAccountRoute>
+            </PrivateRoute>
           )
         },
 
         { path: "admin-dashboard",
           element: (
-            <AdminDashboard />
+            <PrivateRoute allowedRoles={["admin"]}>
+              <DisabledAccountRoute>
+                <AdminDashboard />
+              </DisabledAccountRoute>
+            </PrivateRoute>
           )
         },
 
         { path: "favorites-dashboard",
           element: (
-          <FavoriteCharacterDashboard />
+            <PrivateRoute allowedRoles={["creator"]}>
+              <FavoriteCharacterDashboard />
+            </PrivateRoute>
           )
         },
 
         { path: "signup",
           element: (
-            <SignUpPage />
+            <PublicRoute>
+              <SignUpPage />
+            </PublicRoute>
           )
         },
 
         { path: "login",
           element: (
-            <LoginPage />
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
           )
         },
 
         { path: "forgot-password",
           element: (
-            <ForgotPassword />
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
           )
         },
+        
+        {
+          path: "disabled",
+          element: (
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
+              <DisabledAccountPage />
+            </PrivateRoute>
+          )
+        }
     ],
   },
-//   { path: "*", Component: ErrorPage }, {path: "/error", Component: ErrorPage}
+  { path: "*", Component: ErrorPage }, {path: "/error", Component: ErrorPage}
 ];
 
 export default MainRouter;
