@@ -83,4 +83,19 @@ async function deleteCharacter(req, res) {
     }
 }
 
-module.exports = {createCharacter,getAllCharacters,deleteCharacter};
+async function getCharacterByID(req, res) {
+    try {
+        const character = await Character.findById(req.params.id);
+
+        if (!character) {
+            return res.status(404).json({ error: "Character not found" });
+        }
+
+        res.status(200).json(character);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+module.exports = {createCharacter,getAllCharacters,deleteCharacter, getCharacterByID};

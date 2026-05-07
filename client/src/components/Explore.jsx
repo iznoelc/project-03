@@ -1,6 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import DataSorter from "../utils/DataSorter";
-import Search from "../utils/Search";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 import { toast, ToastContainer } from "react-toastify";
