@@ -12,10 +12,10 @@ import FallbackElement from "../components/FallbackElement";
 
 // pass children as props, which should be just the page that the user is allowed to go to if they are signed in
 const PublicRoute = ({ children }) => {
-  const { user, loading, extraDataLoading } = useAuth();
+  const { user, loading, } = useAuth();
 
   // if authentication is still loading the user, show the fallback element
-  if (loading || extraDataLoading) {
+  if (loading) {
     return <FallbackElement />;
   }
 

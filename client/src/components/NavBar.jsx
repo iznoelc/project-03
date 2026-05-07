@@ -41,9 +41,11 @@ export default function NavBar(){
             <ul className="menu sm:menu-vertical lg:menu-horizontal px-1">
                 <button className="btn btn-ghost" onClick={() => navigate("/explore")}><FaSearch /></button>
             </ul>
+            {role === "creator" &&
             <button className="btn btn-primary" onClick={() => navigate("/characters/create")}>
                 {window.innerWidth > 640 ? <div className="flex flex-row gap-2 items-center"><FaPlus /><p>New Character</p></div> : <FaPlus />}
             </button>
+            }
         </div>
         <div className="navbar-end">
             <div className="dropdown dropdown-end">
