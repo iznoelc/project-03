@@ -49,7 +49,7 @@ const MainRouter = [
 
         { path: "character/:id",
           element: (
-            <PrivateRoute allowedRoles={["creator"]}>
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
               <DisabledAccountRoute>
                 <CharacterDetailPage />
               </DisabledAccountRoute>

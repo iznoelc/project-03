@@ -9,8 +9,11 @@ import useUsernameCheck from "../../hooks/useUsernameCheck"
 import FallbackElement from "../FallbackElement";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 import { successNotify, errorNotify } from "../../utils/ToastifyNotifications";
+
+import { handleCreateUserInDatabase } from "../../auth/handleCreateUserInDatabase";
 
 export default function SignUpPage(){
     const navigate = useNavigate();
@@ -49,42 +52,6 @@ export default function SignUpPage(){
         }));
     }
 
-    const handleCreateUserInDatabase = async (token, user, formData) => {
-        try {
-            const postRes = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-            method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    displayName: formData.displayName,
-                    username: formData.username,
-                    role: formData.role,
-                    accountStatus: formData.accountStatus,
-                }),
-            });
-
-            if (!postRes.ok){
-                throw new Error(`[ERROR CREATING USER IN DATABASE] Status: ${postRes.status}`);
-            }
-            console.log("Post completed successfully")
-
-        } catch (error){
-            console.error("[ERROR CREATING USER IN THE DATABASE, DELETING THEM FROM FIREBASE]: ", error);
-            
-            if (user) {
-                try {
-                    signOutUser(); // first sign the user out so the auth provider doesn't keep trying to fetch data for a uid that doesn't exist
-                    await user.delete();
-                } catch (deleteError) {
-                    console.error("[ERROR DELETING USER FROM FIREBASE:]", deleteError);   
-                }
-            }
-        }
-    }
-
     // handle sign up with email and password
     const handleSubmit = async () => {
         event.preventDefault();
@@ -104,7 +71,7 @@ export default function SignUpPage(){
 
             // create the user in the database
             const token = await user.getIdToken();
-            await handleCreateUserInDatabase(token, user, formData);
+            await handleCreateUserInDatabase(token, user, formData, signOutUser);
 
             await updateProfile(user, {
                 displayName: formData.displayName,
@@ -126,8 +93,11 @@ export default function SignUpPage(){
 
     return (
         <div className="flex flex-col items-center justify-center gap-5 p-24">
+            
             <form onSubmit={handleSubmit}>
+                
             <fieldset className="fieldset bg-base-200 border-base-300 rounded-box sm:w-xs md:w-lg lg:w-2xl border p-4">
+                
                 { /* display name input */ }
                 <label className="label">Display Name</label>
                 <input
@@ -232,8 +202,11 @@ export default function SignUpPage(){
                 }
 
                 <button className="btn btn-neutral mt-4">Create My Account</button>
+                
             </fieldset>
             </form>
+            <p className="secondary-font mt-4 text-center"><i>OR</i></p>
+            <button type="button" className="btn btn-neutral mt-4"><FcGoogle /> Sign up with Google</button>
         </div>
     )
 }
