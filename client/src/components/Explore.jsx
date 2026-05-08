@@ -24,7 +24,7 @@ export default function Explore(){
 
 
 
-        /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
+    /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
     useEffect(() => {
         if (!user) return;
         fetchData(user)
