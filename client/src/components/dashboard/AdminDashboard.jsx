@@ -17,9 +17,9 @@ export default function AdminDashboard() {
 
     const filteredUsers = Search(usersList, userQuery);
 
-    // Admins needing approval (safe for undefined approved)
+    // Disabled Users needing enabling
     const actionNeeded = usersList.filter(
-        u => u.approved === false || u.approved === undefined
+        u => u.accountStatus === "disabled" || u.accountStatus === undefined
     );
     const filteredActionUsers = Search(actionNeeded, actionQuery);
 
@@ -36,6 +36,7 @@ export default function AdminDashboard() {
                     <div className="max-w-2xl">
                         <h1 className="text-5xl">ADMIN DASHBOARD</h1>
                         <p>
+                            //change this discribption to new uses
                             Dear {user?.displayName || "admin"}, welcome to the admin dashboard.
                             Here you can view site statistics, search users, delete users,
                             and approve new admins.
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setUserQuery(e.target.value)}
                     />
 
-                    {filteredUsers.map((u) => (
+                    {filteredUsers.map((u) => ( //add filter here to not include disabled users
                         <div
                             key={u.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
@@ -92,9 +93,9 @@ export default function AdminDashboard() {
                     ))}
                 </div>
 
-                {/* RIGHT — APPROVAL NEEDED */}
+                {/* RIGHT — RE-ENABLE */}
                 <div className="flex flex-col items-start bg-base-200 p-4 rounded h-full">
-                    <h3 className="text-4xl font-bold">Admin Action Needed</h3>
+                    <h3 className="text-4xl font-bold"> Disabled Users</h3>
 
                     <input
                         type="text"
@@ -104,19 +105,19 @@ export default function AdminDashboard() {
                         onChange={(e) => setActionQuery(e.target.value)}
                     />
 
-                    {filteredActionUsers.map((adminToApprove) => (
+                    {filteredActionUsers.map((adminToEnable) => ( //change this to be disabled users not admin
                         <div
-                            key={adminToApprove.uid}
+                            key={adminToEnable.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
                         >
-                            <h3>{adminToApprove.displayName}</h3>
-                            <p className="text-sm mt-2">{adminToApprove.role}</p>
+                            <h3>{adminToEnable.displayName}</h3>
+                            <p className="text-sm mt-2">{adminToEnable.role}</p>
 
                             <button
                                 className="btn btn-success btn-sm mt-4"
-                                onClick={() => Approve(user, adminToApprove.uid, setUsersList)}
+                                onClick={() => Enable(user, adminToEnable.uid, setUsersList)}
                             >
-                                Approve/Enable
+                                Re-Enable
                             </button>
                         </div>
                     ))}
@@ -153,7 +154,8 @@ async function fetchUsers(setUsersList, user) {
     }
 }
 
-async function Approve(user, userId, setUsersList) {
+//change this to enable
+async function Enable(user, userId, setUsersList) {
     try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
             method: "PATCH",
@@ -161,24 +163,25 @@ async function Approve(user, userId, setUsersList) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${await user.getIdToken()}`,
             },
-            body: JSON.stringify({ approved: true }),
+            body: JSON.stringify({ accountStatus: true }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         setUsersList(prev =>
             prev.map(u =>
-                u.uid === userId ? { ...u, approved: true } : u
+                u.uid === userId ? { ...u, accountStatus: true } : u
             )
         );
 
-        toast.success("Admin approved successfully!");
+        toast.success("User re-enabled successfully!");
     } catch (err) {
         console.log("Failed to approve admin:", err);
         toast.error("Failed to approve admin.");
     }
 }
 
+//MAKE THIS WORK< THINK I COPIED FROM OLD PROJECT WRONG
 async function Delete(user, userId, setUsersList) {
     const confirmed = await confirmToast("Delete this user?");
     if (!confirmed) return;
@@ -208,14 +211,14 @@ async function Disable(currentUser, userId, setUsersList) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${await currentUser.getIdToken()}`,
             },
-            body: JSON.stringify({ approved: false }),
+            body: JSON.stringify({ accountStatus: false }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         setUsersList(prev =>
             prev.map(u =>
-                u.uid === userId ? { ...u, approved: false } : u
+                u.uid === userId ? { ...u, accountStatus: "disabled" } : u
             )
         );
 
