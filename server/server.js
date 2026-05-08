@@ -3,9 +3,9 @@
 
 
 require("dotenv").config();
-// if (process.env.LOCAL_DNS_FIX === "true") {
-//   require("./localFix.js");
-// }
+if (process.env.LOCAL_DNS_FIX === "true") {
+  require("./localFix.js");
+ }
 const express = require("express");
 const cors = require("cors"); 
 const { connectDB } = require("./src/config/db");

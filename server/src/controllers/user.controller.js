@@ -67,6 +67,16 @@ async function getUserByUID(req, res) {
     }
 };
 
+async function getAllUsers(req, res) {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
 // PATCH to edit a user based on the params sent in the request
 async function updateUser(req, res){
     try {
@@ -112,4 +122,4 @@ async function updateUser(req, res){
 }
 
 
-module.exports = { createUser, getUserByUID, updateUser };
+module.exports = { createUser, getUserByUID, getAllUsers, updateUser };
