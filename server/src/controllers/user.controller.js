@@ -6,13 +6,13 @@
  * @author Izzy Carlson
  */
 const User = require("../models/user.model");
-const userValidator = require("../validators/user.validator");
+const { validateUser, validateEditedProfile } = require("../validators/user.validator");
 const admin = require("firebase-admin");
 
 // POST a new user to the database
 async function createUser(req, res) {
     try {
-        const { error, value } = userValidator.validateUser(req.body);
+        const { error, value } = validateUser(req.body);
 
         // make sure fields are properly validated before creating the user
         if (error) {
@@ -33,6 +33,7 @@ async function createUser(req, res) {
         const user = new User({
             uid: value.uid,
             displayName: value.displayName,
+            username: value.username,
             role: value.role,
             accountStatus: value.accountStatus,
         });
@@ -40,10 +41,26 @@ async function createUser(req, res) {
 
         res.status(201).json({ message: "USER CREATED SUCCESSFULLY", user });
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(409).json({ message: "Username already taken." });
+        }
         console.error(err);
         res.status(500).json({ message: "[SERVER ERROR WHEN TRYING TO POST A USER]" });
     } 
 };
+
+// GET to determine if a username is taken
+async function checkUsernameAvailability(req, res) {
+    try {
+        const { username } = req.query;
+        if (!username) { return res.status(400).json({error: "[USERNAME REQUIRED]"}); }
+
+        taken = await User.findOne({ username: username.toLowerCase().trim() });
+        res.status(200).json({ available: !taken });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
 
 // GET a single user by their uid
 async function getUserByUID(req, res) {
@@ -93,7 +110,7 @@ async function updateUser(req, res){
         const updateFields = {};
 
         // fields that any user can update (i.e. editing profile or favoriting characters)
-        const allowedFields = ["displayName", "favChars", "pfp", "bio", ];
+        const allowedFields = ["displayName", "username", "favChars", "pfp", "bio", ];
 
         for (const key of allowedFields) {
             if (req.body[key] !== undefined) {
@@ -117,6 +134,24 @@ async function updateUser(req, res){
             updateFields.accountStatus = req.body.accountStatus;
         }
 
+        // trying to update username, check if user exists and return 409 if it does.
+        if (req.body.username !== undefined){
+            const { error, value } = validateEditedProfile(req.body); // make sure the username is valid
+
+            if (error) {
+                return res.status(400).send(error.message);
+            }
+
+            const exists = await User.findOne({
+                username: value.username,
+                uid: { $ne: req.params.uid },// exclude current user to avoid a false positive
+            });
+
+            if (exists){
+                return res.status(409).json({ error: "Username already taken."});
+            }
+        }
+
         const patched = await User.findOneAndUpdate(
             { uid: req.params.uid },
             { $set: updateFields },
@@ -130,4 +165,4 @@ async function updateUser(req, res){
 }
 
 
-module.exports = { createUser, getUserByUID, getAllUsers, updateUser };
+module.exports = { createUser, getUserByUID, updateUser, checkUsernameAvailability, getAllUsers };

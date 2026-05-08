@@ -3,6 +3,9 @@ import Search from "../utils/Search";
 import { useState, useMemo, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { Link } from "react-router-dom";
+import { normalizeId } from "../utils/NormalizeCharacterId";
+import useFavoriteCharacters from "../hooks/useFavoriteCharacter";
+import { FaRegStar, FaStar } from "react-icons/fa";
 
 /**
  * SearchBar.jsx
@@ -18,7 +21,10 @@ import { Link } from "react-router-dom";
 export default function SearchBar({ data: initialData }){
 
 
-    const { user,} = useAuth(); 
+    const { user, favChars} = useAuth(); 
+
+    const { addToFav, removeFromFav } = useFavoriteCharacters(); // use custom hook to get the favorites list and functions to add/remove movies from favorites
+
 
 
     // Number of entries being shown to the user
@@ -58,6 +64,12 @@ export default function SearchBar({ data: initialData }){
         // otherwise, sort the filtered data
         return DataSorter(sortType, ascending, filteredData);
     }, [filteredData, sortType, ascending, data]);
+
+
+    // check if movie is in favorites list by checking if the title of the movie is in the favorites list. return true if it is, false if it isnt.
+    const isFavorite = (charId) => {
+        return favChars.some(fav => normalizeId(fav) === charId.toString());
+    }
 
 
     return (
@@ -129,7 +141,7 @@ export default function SearchBar({ data: initialData }){
   
                     {/* content */}
                     
-                    <Link to={`/characters/${d._id}`} className="block">
+                    <Link to={`/character/${d._id}`} className="block">
                     <div className="card bg-base-100 shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
@@ -192,7 +204,11 @@ export default function SearchBar({ data: initialData }){
 
                     </div>
                     </Link>                    
-
+                    <button className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
+                        ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}
+                        onClick={isFavorite(d._id) ? () => removeFromFav(d.name, d._id) : () => addToFav(d.name, d)}>
+                        {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
+                    </button>
                 </div>
             ))}
             </div>

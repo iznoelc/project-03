@@ -21,7 +21,7 @@ const PublicRoute = ({ children }) => {
 
   // if the user is signed in, redirect them to the explore page
   if (user) {
-    return <Navigate to="/explore"></Navigate>;
+    return <Navigate to="/"></Navigate>;
   }
 
   return children;

@@ -15,7 +15,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, loading, role, extraDataLoading } = useAuth();
 
   // if authentication is still loading the user, show the fallback element
-  if (loading || extraDataLoading) {
+  if (loading || extraDataLoading || (user && !role)) {
     return <FallbackElement />;
   }
 

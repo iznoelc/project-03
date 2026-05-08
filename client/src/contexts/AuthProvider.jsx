@@ -21,6 +21,8 @@
 
   // passing a children prop -->
   const AuthProvider = ({ children }) => {
+    let attempts = 0;
+
     const [user, setUser] = useState(null); // the user
     const [dbUser, setDbUser] = useState(null);
     const [role, setRole] = useState(null); // their role (admin or creator)
@@ -28,7 +30,7 @@
     const [favChars, setFavChars] = useState([]);
     
     const [loading, setLoading] = useState(true);
-    const [extraDataLoading, setExtraDataLoading] = useState(true);
+    const [extraDataLoading, setExtraDataLoading] = useState(false);
 
     const createUser = (email, password) => { return createUserWithEmailAndPassword(auth, email, password); };
 
@@ -74,11 +76,13 @@
               Authorization: `Bearer ${token}`,
             },
           });
-          if (res.status === 404){
-            console.log("[LOAD EXTRA DATA 404 - TRYING AGAIN IN 2s");
+          if (res.status === 404 && attempts < 2){
+            console.log("[LOAD EXTRA DATA 404 - TRYING AGAIN IN 2s. STOPPING AFTER 1 MORE ATTEMPT IF STILL UNSUCCESSFUL.");
             setTimeout(loadExtraData, 2000);
+            attempts++;
             return; 
           }
+
           if (!res.ok){
             throw new Error("FAILED TO FETCH USER DATA [ROLE, ACCOUNT STATUS, FAV CHARAS]");
           }
@@ -100,9 +104,9 @@
 
       loadExtraData();
 
-    }, [user]);
+    }, [user, attempts]);
     
-    // fetch the user for immediate update after sign in
+    // fetch the user f or immediate update after sign in
     const fetchUser = async (uid, token) => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${uid}`, {
         headers: {

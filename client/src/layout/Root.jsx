@@ -10,12 +10,15 @@ import { Outlet } from "react-router";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 
+import FavoriteCharacterProvider from "../contexts/FavoriteCharacterProvider";
+
 import { ToastContainer, Slide } from "react-toastify";
 
 const Root = () => {
   return (
     <>
       <div className="flex flex-col min-h-screen">
+        <FavoriteCharacterProvider>
         <NavBar />
         
         <main className="flex-1 flex flex-col overflow-auto">
@@ -36,6 +39,7 @@ const Root = () => {
         </main>
 
         <Footer/>
+        </FavoriteCharacterProvider>
       </div>
     </>
   );
