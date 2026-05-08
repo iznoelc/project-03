@@ -19,7 +19,7 @@ export default function AdminDashboard() {
 
     // Admins needing approval (safe for undefined approved)
     const actionNeeded = usersList.filter(
-        u => u.role === "admin" && (u.approved === false || u.approved === undefined)
+        u => u.approved === false || u.approved === undefined
     );
     const filteredActionUsers = Search(actionNeeded, actionQuery);
 
@@ -77,6 +77,12 @@ export default function AdminDashboard() {
                             <p className="text-sm mt-2">{u.role}</p>
 
                             <button
+                                className="btn btn-warning btn-sm mt-4"
+                                onClick={() => Disable(user, u.uid, setUsersList)}
+                            >
+                                Disable
+                            </button>
+                            <button
                                 className="btn btn-error btn-sm mt-4"
                                 onClick={() => Delete(user, u.uid, setUsersList)}
                             >
@@ -86,9 +92,9 @@ export default function AdminDashboard() {
                     ))}
                 </div>
 
-                {/* RIGHT — ADMIN APPROVAL */}
+                {/* RIGHT — APPROVAL NEEDED */}
                 <div className="flex flex-col items-start bg-base-200 p-4 rounded h-full">
-                    <h3 className="text-4xl font-bold">Admin Approval Needed</h3>
+                    <h3 className="text-4xl font-bold">Admin Action Needed</h3>
 
                     <input
                         type="text"
@@ -110,7 +116,7 @@ export default function AdminDashboard() {
                                 className="btn btn-success btn-sm mt-4"
                                 onClick={() => Approve(user, adminToApprove.uid, setUsersList)}
                             >
-                                Approve Admin
+                                Approve/Enable
                             </button>
                         </div>
                     ))}
@@ -193,6 +199,33 @@ async function Delete(user, userId, setUsersList) {
         console.log("Error deleting user", err);
     }
 }
+
+async function Disable(currentUser, userId, setUsersList) {
+    try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${await currentUser.getIdToken()}`,
+            },
+            body: JSON.stringify({ approved: false }),
+        });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        setUsersList(prev =>
+            prev.map(u =>
+                u.uid === userId ? { ...u, approved: false } : u
+            )
+        );
+
+        toast.success("User disabled successfully!");
+    } catch (err) {
+        console.log("Failed to disable user:", err);
+        toast.error("Failed to disable user.");
+    }
+}
+
 
 function confirmToast(message = "Are you sure?") {
     return new Promise((resolve) => {

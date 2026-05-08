@@ -15,6 +15,7 @@ import Explore from "../components/Explore"
 import CreatorDashboard from "../components/dashboard/CreatorDashboard";
 import AdminDashboard from "../components/dashboard/AdminDashboard";
 import FavoriteCharacterDashboard from "../components/dashboard/FavoriteCharacterDashboard";
+import CharacterDetailPage from "../components/characters/CharacterDetailPage";
 
 import SignUpPage from "../components/authentication/SignUpPage";
 import LoginPage from "../components/authentication/LoginPage";
@@ -42,6 +43,16 @@ const MainRouter = [
           element: (
             <PrivateRoute allowedRoles={["creator"]}>
               <CreatorDashboard />
+            </PrivateRoute>
+          )
+        },
+
+        { path: "character/:id",
+          element: (
+            <PrivateRoute allowedRoles={["creator"]}>
+              <DisabledAccountRoute>
+                <CharacterDetailPage />
+              </DisabledAccountRoute>
             </PrivateRoute>
           )
         },

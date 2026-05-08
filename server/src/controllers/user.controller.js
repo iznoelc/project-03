@@ -101,6 +101,14 @@ async function updateUser(req, res){
             }
         }
 
+        if (req.body.approved !== undefined) {
+            if (!currentUser || currentUser.role !== "admin") {
+                return res.status(403).json({ error: "Only admins can approve users." });
+            }
+            updateFields.approved = req.body.approved;
+        }
+
+
         // if the user makes a request to edit the accountStatus field, we need to make sure they're an admin
         if (req.body.accountStatus !== undefined){
             if (!currentUser) { return res.status(401).json({ error: "Invalid user." })} // no user, return

@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema({
     pfp: {
         type: String, default: "",
     },
+    approved: {
+        type: Boolean,
+        default: function () {
+            return this.role !== "admin"; //creators should start off approved, admins should not
+        }
+    },
 }, { 
     timestamps: true
 });
