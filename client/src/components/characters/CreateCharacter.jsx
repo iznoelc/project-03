@@ -2,11 +2,19 @@ import { useState, useMemo, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import { errorNotify, successNotify } from "../../utils/ToastifyNotifications";
 import { createCharacter } from "../../utils/CreateDeleteCharacter";
+import uploadToImgBB from "../../imgbb/imgbb";
 
 export default function CreateCharacter(){
     const { user } = useAuth();
 
     const [characters, setCharacters] = useState([]); // Data for the characters being fetched
+
+    // Image variables
+    const [iconFile, setIconFile] = useState(null);
+    const [refFile, setRefFile] = useState(null);
+
+    const [previewIcon, setPreviewIcon] = useState(null);
+    const [previewRef, setPreviewRef] = useState(null);
 
     
 
@@ -65,6 +73,23 @@ export default function CreateCharacter(){
         }
     };
 
+    
+    const handleIconSelected = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIconFile(file);
+        setPreviewIcon(URL.createObjectURL(file));
+    };
+
+    const handleRefSelected = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setRefFile(file);
+        setPreviewRef(URL.createObjectURL(file));
+    };
+
 
     // Function to call create character from the createDeleteCharacter util
     const addCharacter = async () => {
@@ -111,9 +136,30 @@ export default function CreateCharacter(){
         return;
         }
         
+        
+        
+            let iconUrl = formData.iconImg;
+            let refUrl = formData.referenceImg;
 
+            // Upload icon if selected
+            if (iconFile) {
+                iconUrl = await uploadToImgBB(iconFile);
+            }
+            
+            // Upload reference image if selected
+            if (refFile) {
+                refUrl = await uploadToImgBB(refFile);
+            }
 
-        await createCharacter(user, formData)
+            const updatedForm = {
+                ...formData,
+                owner_uid: user.uid,
+                iconImg: iconUrl,
+                referenceImg: refUrl
+            };
+        
+
+        await createCharacter(user, updatedForm)
 
         // Reset form
         setFormData({
@@ -221,18 +267,22 @@ export default function CreateCharacter(){
                 placeholder=""
               />
             </fieldset>
-
+            
             <fieldset className="fieldset">
-                <legend className="fieldset-legend">Icon Image URL</legend>
+                <legend className="fieldset-legend">Character Icon</legend>
+
+                {previewRef && (
+                    <img src={previewRef} className="w-32 h-32 object-cover rounded-lg mb-2" />
+                )}
+
                 <input
-                    type="text"
-                    className="input w-full"
-                    name="iconImg"
-                    value={formData.iconImg}
-                    onChange={handleChange}
-                    placeholder="https://example.com/image.jpg"
+                    type="file"
+                    accept="image/*"
+                    className="file-input w-full"
+                    onChange={handleIconSelected}
                 />
             </fieldset>
+
 
             <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
                 <label className="label justify-center">
@@ -257,14 +307,17 @@ export default function CreateCharacter(){
             </fieldset>
             
             <fieldset className="fieldset">
-                <legend className="fieldset-legend">Reference Image URL</legend>
+                <legend className="fieldset-legend">Reference Picture</legend>
+
+                {previewIcon && (
+                    <img src={previewIcon} className="w-32 h-32 object-cover rounded-lg mb-2" />
+                )}
+
                 <input
-                    type="text"
-                    className="input w-full"
-                    name="referenceImg"
-                    value={formData.referenceImg}
-                    onChange={handleChange}
-                    placeholder="https://example.com/reference.jpg"
+                    type="file"
+                    accept="image/*"
+                    className="file-input w-full"
+                    onChange={handleRefSelected}
                 />
             </fieldset>
 
