@@ -9,7 +9,7 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { createUser, getUserByUID, getAllUsers, updateUser } = require("../controllers/user.controller");
+const { createUser, getUserByUID, getAllUsers, updateUser, checkUsernameAvailability } = require("../controllers/user.controller");
 
 // test route
 // router.get("/", async (req, res) => {
@@ -18,6 +18,8 @@ const { createUser, getUserByUID, getAllUsers, updateUser } = require("../contro
 
 // post a new user to the database
 router.post("/", verifyFirebaseToken, createUser);
+
+router.get("/check-username", checkUsernameAvailability)
 
 // get a specific user by their uid
 router.get("/:uid", verifyFirebaseToken, getUserByUID);

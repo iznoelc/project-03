@@ -4,21 +4,24 @@ import {
   updateProfile,
 } from "firebase/auth";
 import useAuth from "../../hooks/useAuth";
+import useUsernameCheck from "../../hooks/useUsernameCheck"
 
 import FallbackElement from "../FallbackElement";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+import { successNotify, errorNotify } from "../../utils/ToastifyNotifications";
+
 export default function SignUpPage(){
     const navigate = useNavigate();
-    const { createUser, loggedIn, fetchUser } = useAuth();
-    const [signUpLoading, setSignUpLoading] = useState(false);
 
-    const [passwordVisibility, setPasswordVisibility] = useState(false); // password visibility 
-    const [confirmPasswordVisibility, setconfirmPasswordVisibility] = useState(false); // password visibility 
+    // auth
+    const { createUser, loggedIn, fetchUser, signOutUser } = useAuth();
+    const [signUpLoading, setSignUpLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         displayName: "",
+        username: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -26,7 +29,14 @@ export default function SignUpPage(){
         accountStatus: "active",
     });
 
+    // username
+    const { usernameAvail, usernameChecking } = useUsernameCheck(formData.username);
+
+    // password and confirm password visibility
+    const [passwordVisibility, setPasswordVisibility] = useState(false);
+    const [confirmPasswordVisibility, setconfirmPasswordVisibility] = useState(false); 
     const pwMatch = formData.password === formData.confirmPassword; // make sure password and confirm password fields match
+
 
     // update text fields accordingly when user types
     const handleChange = (event) => {
@@ -37,7 +47,7 @@ export default function SignUpPage(){
             ...prevState,
             [name]: value
         }));
-    };
+    }
 
     const handleCreateUserInDatabase = async (token, user, formData) => {
         try {
@@ -50,6 +60,7 @@ export default function SignUpPage(){
                 body: JSON.stringify({
                     uid: user.uid,
                     displayName: formData.displayName,
+                    username: formData.username,
                     role: formData.role,
                     accountStatus: formData.accountStatus,
                 }),
@@ -62,8 +73,10 @@ export default function SignUpPage(){
 
         } catch (error){
             console.error("[ERROR CREATING USER IN THE DATABASE, DELETING THEM FROM FIREBASE]: ", error);
+            
             if (user) {
                 try {
+                    signOutUser(); // first sign the user out so the auth provider doesn't keep trying to fetch data for a uid that doesn't exist
                     await user.delete();
                 } catch (deleteError) {
                     console.error("[ERROR DELETING USER FROM FIREBASE:]", deleteError);   
@@ -74,8 +87,11 @@ export default function SignUpPage(){
 
     // handle sign up with email and password
     const handleSubmit = async () => {
-        // event.preventDefault();
+        event.preventDefault();
         if (!pwMatch) return; // return if user's passwords do not match 
+        if (usernameChecking) return; // have not yet determined if username is available
+        if (!usernameAvail) return; // return if username is not available
+
         console.log("[SIGN UP FORM SUBMITTED]: ", formData);
         setSignUpLoading(true);
         try {
@@ -96,10 +112,11 @@ export default function SignUpPage(){
 
             await fetchUser(user.uid, token, formData); // update user in auth provider ASAP
 
-            alert("Successful signup!");
+            successNotify("Account created successfully!")
             navigate("/", { replace: true });
         } catch (error) {
-            alert("Error creating account, please try again!");
+            errorNotify("There was an error creating your account. Please try again!");
+            navigate("/login", { replace: true });
             console.log("Error creating user: ", error.message);
         }
         setSignUpLoading(false);
@@ -124,6 +141,35 @@ export default function SignUpPage(){
                     minLength="2"
                     onChange={handleChange}
                 />
+
+                {/* username */}
+                <label className="label">Username</label>
+                <label className={`input sm:w-xs md:w-lg lg:w-2xl ${usernameAvail === null ? "input" : (usernameAvail ? "input-success" : "input-error")}`}>
+                <input
+                    type="text"
+                    required
+                    placeholder="enter username"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    pattern="[A-Za-z][A-Za-z0-9_]*"
+                    minLength="3"
+                    maxLength="15"
+                    title="Only letters, numbers or dash"
+                    onChange={handleChange}
+                />
+                </label>
+                <p className="validator-hint hidden">
+                Must be 3 to 15 characters, containing only letters, numbers or 
+                </p>
+                {usernameAvail !== null && <>
+                    { usernameAvail ?
+                        <p className="text-success">Username available and valid!</p>
+                            :
+                        <p className="text-error">Username is not available, please try something else.</p>
+                    }
+                    
+                </>}
 
                 { /* email input */ }
                 <label className="label">Email</label>

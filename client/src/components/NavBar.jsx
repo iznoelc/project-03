@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function NavBar(){
     const navigate = useNavigate();
-    const { loggedIn, signOutUser, user, role } = useAuth();
+    const { loggedIn, signOutUser, user, dbUser, role, extraDataLoading } = useAuth();
 
     // nav bar if the user is not logged in
-    if (!loggedIn) return (
+    if (!loggedIn || extraDataLoading) return (
         <div className="navbar bg-base-100 shadow-sm">
         <div className="navbar-start">
             <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
@@ -49,10 +49,10 @@ export default function NavBar(){
         </div>
         <div className="navbar-end">
             <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle pr-1">
                 <div className="indicator">
                 <FaBell className="text-xl"/>
-                <span className="badge badge-sm indicator-item">8</span>
+                <span className="badge badge-xs indicator-item">8</span>
                 </div>
             </div>
             <div
@@ -69,7 +69,7 @@ export default function NavBar(){
             </div>
             <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                <IoPersonCircleOutline className="text-4xl" />
+                {dbUser !== null && dbUser?.pfp !== "" ? <img src={dbUser.pfp} className="w-10 h-10" /> : <IoPersonCircleOutline className="text-4xl" />}
             </div>
             <ul
                 tabIndex="-1"
