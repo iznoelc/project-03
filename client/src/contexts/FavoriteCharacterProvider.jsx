@@ -15,13 +15,15 @@ import { errorNotify, successNotify } from "../utils/ToastifyNotifications";
 // set up what the context will do. for favorite movies, it creates functions to add to favorites, remove from favorites, and the favorites list
 // make sure it takes children as a prop, because this allows all components wrapped in this component access to the context.
 export default function FavoriteJobProvider({children}) {
-  const { user, favCharacters, setFavCharacters, fetchUser } = useAuth();
+  const { user, favChars, setFavChars, fetchUser } = useAuth();
 
     /* add a movie to the favorites list, but dont add it if its already in the list. if its already in the list, give an alert */
     const addToFav = async (characterName, characterObject) => {
           try {
-              const cleanFavCharacters = favCharacters.map(normalizeId);
+              const cleanFavCharacters = (favChars || []).map(normalizeId);
               // const updatedFavJobs = [...cleanFavJobs, jobObject];
+              const newId = normalizeId(characterObject);
+              setFavChars([...cleanFavCharacters, newId]);
 
               const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}`, {
               method: "PATCH",
@@ -30,7 +32,7 @@ export default function FavoriteJobProvider({children}) {
                     Authorization: `Bearer ${await user.getIdToken()}`,
                   },
                   body: JSON.stringify({
-                    fav_jobs: [...cleanFavCharacters, normalizeId(characterObject)]
+                    favChars: [...cleanFavCharacters, normalizeId(characterObject)]
                   }),
               });
       
@@ -41,9 +43,11 @@ export default function FavoriteJobProvider({children}) {
               // setFavJobs(updatedFavJobs);
               await fetchUser(user.uid, await user.getIdToken()); // re-fetch populated data
               successNotify("Successfully added " + characterName + " to favorites character list!");
-          } catch{
-              errorNotify("Error adding " + characterName + " to favorites character list, try again.");
+          } catch (err) {
+            console.error("AddToFav error:", err);
+            errorNotify("Error adding " + characterName + " to favorites character list, try again.");
           }
+
     };
   
     /* remove a character from the favorites list. It takes in a job object as an argument and updates the favMovies state by filtering out the movie with the matching title. */
@@ -54,8 +58,9 @@ export default function FavoriteJobProvider({children}) {
         //     job => job !== jobId
         // );
 
-        const updatedFavCharacters = favCharacters.filter(character => normalizeId(character) !== characterId)
-
+        const updatedFavCharacters = favChars.filter(character => normalizeId(character) !== characterId)
+        setFavChars(updatedFavCharacters);
+        
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}`, {
         method: "PATCH",
             headers: {
@@ -63,7 +68,7 @@ export default function FavoriteJobProvider({children}) {
               Authorization: `Bearer ${await user.getIdToken()}`,
             },
             body: JSON.stringify({
-              fav_characters: updatedFavCharacters.map(normalizeId),
+              favChars: updatedFavCharacters.map(normalizeId),
             }),
         });
 
@@ -71,11 +76,13 @@ export default function FavoriteJobProvider({children}) {
             throw new Error(`HTTP error! status: ${res.status}`);
         }
 
-        setFavCharacters(updatedFavCharacters);
+        setFavChars(updatedFavCharacters);
         successNotify("Successfully removed " + characterName + " from favorites character list!");
-    } catch{
-        errorNotify("Error removing " + characterName + " to favorites character list, try again.");
+    } catch (err) {
+    console.error("RemoveFromFav error:", err);
+    errorNotify("Error removing " + characterName + " to favorites character list, try again.");
     }
+
     };
 
   return (

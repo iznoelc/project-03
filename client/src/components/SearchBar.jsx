@@ -25,7 +25,7 @@ export default function SearchBar({ data: initialData }){
 
     const { addToFav, removeFromFav } = useFavoriteCharacters(); // use custom hook to get the favorites list and functions to add/remove movies from favorites
 
-
+    console.log("favCharacters:", favChars);
 
     // Number of entries being shown to the user
     const [numShow, setNumShow] = useState(10);
@@ -68,8 +68,11 @@ export default function SearchBar({ data: initialData }){
 
     // check if movie is in favorites list by checking if the title of the movie is in the favorites list. return true if it is, false if it isnt.
     const isFavorite = (charId) => {
-        return favChars.some(fav => normalizeId(fav) === charId.toString());
-    }
+        return (favChars || []).some(fav =>
+            normalizeId(fav) === charId.toString()
+        );
+    };
+
 
 
     return (
