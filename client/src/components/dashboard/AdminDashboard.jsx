@@ -15,13 +15,18 @@ export default function AdminDashboard() {
         fetchUsers(setUsersList, user);
     }, [user]);
 
-    const filteredUsers = Search(usersList, userQuery);
-
-    // Disabled Users needing enabling
-    const actionNeeded = usersList.filter(
-        u => u.accountStatus === "disabled" || u.accountStatus === undefined
+    // LEFT — Active users
+    const activeList = usersList.filter(
+        u => u.accountStatus === "active"
     );
-    const filteredActionUsers = Search(actionNeeded, actionQuery);
+    const activeUsers = Search(activeList, userQuery);
+
+    // RIGHT — Disabled users (your original logic)
+    const disabledList = usersList.filter(
+        u => u.accountStatus === "disabled"
+    );
+    const disabledUsers = Search(disabledList, actionQuery);
+
 
     // Stats (backend uses "creator" not "user")
     const adminCount = usersList.filter(u => u.role === "admin").length;
@@ -69,7 +74,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setUserQuery(e.target.value)}
                     />
 
-                    {filteredUsers.map((u) => ( //add filter here to not include disabled users
+                    {activeUsers.map((u) => ( //add filter here to not include disabled users
                         <div
                             key={u.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
@@ -105,17 +110,17 @@ export default function AdminDashboard() {
                         onChange={(e) => setActionQuery(e.target.value)}
                     />
 
-                    {filteredActionUsers.map((adminToEnable) => ( //change this to be disabled users not admin
+                    {disabledUsers.map((u) => ( //change this to be disabled users not admin
                         <div
-                            key={adminToEnable.uid}
+                            key={u.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
                         >
-                            <h3>{adminToEnable.displayName}</h3>
-                            <p className="text-sm mt-2">{adminToEnable.role}</p>
+                            <h3>{u.displayName}</h3>
+                            <p className="text-sm mt-2">{u.role}</p>
 
                             <button
                                 className="btn btn-success btn-sm mt-4"
-                                onClick={() => Enable(user, adminToEnable.uid, setUsersList)}
+                                onClick={() => Enable(user, u.uid, setUsersList)}
                             >
                                 Re-Enable
                             </button>
@@ -163,14 +168,14 @@ async function Enable(user, userId, setUsersList) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${await user.getIdToken()}`,
             },
-            body: JSON.stringify({ accountStatus: true }),
+            body: JSON.stringify({ accountStatus: "active" }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         setUsersList(prev =>
             prev.map(u =>
-                u.uid === userId ? { ...u, accountStatus: true } : u
+                u.uid === userId ? { ...u, accountStatus: "active" } : u
             )
         );
 
@@ -211,7 +216,7 @@ async function Disable(currentUser, userId, setUsersList) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${await currentUser.getIdToken()}`,
             },
-            body: JSON.stringify({ accountStatus: false }),
+            body: JSON.stringify({ accountStatus: "disabled" }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);

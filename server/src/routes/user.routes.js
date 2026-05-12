@@ -9,12 +9,15 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { createUser, getUserByUID, getAllUsers, updateUser, checkUsernameAvailability } = require("../controllers/user.controller");
+const { deleteUser, createUser, getUserByUID, getAllUsers, updateUser, checkUsernameAvailability } = require("../controllers/user.controller");
 
 // test route
 // router.get("/", async (req, res) => {
 //   res.send("User route");
 // });
+
+// delete a user based on their uid
+router.delete("/:uid", verifyFirebaseToken, deleteUser);
 
 // post a new user to the database
 router.post("/", verifyFirebaseToken, createUser);
