@@ -23,6 +23,7 @@ import ForgotPassword from "../components/authentication/ForgotPassword";
 
 import CreateCharacter from "../components/characters/CreateCharacter";
 import DisabledAccountPage from "../components/DisabledAccountPage";
+import TempNotificationsTest from "../components/TempNotificationsTest";
 
 const MainRouter = [
   {
@@ -49,7 +50,7 @@ const MainRouter = [
 
         { path: "character/:id",
           element: (
-            <PrivateRoute allowedRoles={["creator"]}>
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
               <DisabledAccountRoute>
                 <CharacterDetailPage />
               </DisabledAccountRoute>
@@ -123,6 +124,15 @@ const MainRouter = [
           element: (
             <PrivateRoute allowedRoles={["creator", "admin"]}>
               <UserProfile />
+            </PrivateRoute>
+          )
+        },
+
+        {
+          path: "notifications-test",
+          element: (
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
+              <TempNotificationsTest />
             </PrivateRoute>
           )
         }

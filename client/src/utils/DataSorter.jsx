@@ -22,9 +22,14 @@ function DataSorter (Type, Ascending, DataArray){
         };
         case "creator":{
             
-             returnArray = sortCreator(Ascending, returnArray);
+            returnArray = sortCreator(Ascending, returnArray);
             break;
         };
+        case "date":{
+            
+            returnArray = sortDate(Ascending, returnArray);
+            break;
+        }
     }
 
     return returnArray;
@@ -87,6 +92,23 @@ function sortTags(Ascending, DataArray){ // Sorts by the location of each job
 
 
     return returnArray;
+}
+
+function sortDate(Ascending, DataArray){
+    let returnArray = [...DataArray];
+
+    returnArray.sort((a,b) => {
+        let stringA = (a.createdAt || "").toLowerCase();
+        let stringB = (b.createdAt || "").toLowerCase();
+        return stringA.localeCompare(stringB);
+    });
+    if(!Ascending){
+        returnArray.reverse();
+    }
+    
+
+    return returnArray;
+
 }
 
 export default DataSorter;

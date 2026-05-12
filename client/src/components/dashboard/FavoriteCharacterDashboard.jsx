@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 
 export default function FavoriteCharacterDashboard(){
 
-    const { user } = useAuth();
+    const { user, dbUser } = useAuth();
 
     const [characters, setCharacters] = useState([]); // Data for the characters being fetched
   
@@ -12,19 +12,31 @@ export default function FavoriteCharacterDashboard(){
 
 
     /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
-    useEffect(() => {
-        if (!user) return;
-        fetchData(user)
-    }, [user]);
-
-
+    /*useEffect(() => {
+        if (!user || !dbUser) return;
+        fetchData(user);
+    }, [user, dbUser]);
+    */
     
+    useEffect(() => {
+        if (!dbUser) return;
+
+        const filtered = (dbUser.favChars || []).filter(
+            c => c.vis === "public"
+        );
+
+        setCharacters(filtered);
+        setLoading(false);
+
+    }, [dbUser]);
+
+    /*
     async function fetchData(user) {
         try {
             const token = await user.getIdToken();
 
             // Fetch all favorites in parallel
-            const requests = user.favChars.map((d) =>
+            const requests = dbUser.favChars.map((d) =>
                 fetch(`${import.meta.env.VITE_API_URL}/characters/${d._id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -54,7 +66,7 @@ export default function FavoriteCharacterDashboard(){
         }
     }
 
-
+    */
 
     if (loading) {
         return (

@@ -25,7 +25,7 @@ export default function SearchBar({ data: initialData }){
 
     const { addToFav, removeFromFav } = useFavoriteCharacters(); // use custom hook to get the favorites list and functions to add/remove movies from favorites
 
-
+    //console.log("favCharacters:", favChars);
 
     // Number of entries being shown to the user
     const [numShow, setNumShow] = useState(10);
@@ -68,8 +68,11 @@ export default function SearchBar({ data: initialData }){
 
     // check if movie is in favorites list by checking if the title of the movie is in the favorites list. return true if it is, false if it isnt.
     const isFavorite = (charId) => {
-        return favChars.some(fav => normalizeId(fav) === charId.toString());
-    }
+        return (favChars || []).some(fav =>
+            normalizeId(fav) === charId.toString()
+        );
+    };
+
 
 
     return (
@@ -141,7 +144,7 @@ export default function SearchBar({ data: initialData }){
   
                     {/* content */}
                     
-                    <Link to={`/character/${d._id}`} className="block">
+                    <div className="block">
                     <div className="card bg-base-100 shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
@@ -160,12 +163,12 @@ export default function SearchBar({ data: initialData }){
 
                             <div className="flex flex-col gap-2">
                                 {/* put the title and description of the movie in the cards */}
-                                <div className="no-underline">
+                                <Link to={`/character/${d._id}`}  className="no-underline">
                                 <h2 className="card-title primary-font text-2xl hover:underline">
                                     {d.name}
                                 </h2>
                                 <h3 className="text-lg">{d.creator}</h3>
-                                </div>
+                                </Link>
                                 
                                 
                             </div>
@@ -185,17 +188,23 @@ export default function SearchBar({ data: initialData }){
                                         </div>
 
                                     </div>
-                                    <div>                                              
-                                        {/*
-                                        <div className="justify-end card-actions">
+                                    <div>
                                         
-                                            <button className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
+                                    {d.owner_uid !== user.uid && (
+                                        <button
+                                            className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
                                             ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}
-                                                onClick={isFavorite(d._id) ? () => removeFromFav(d.job_title, d._id) : () => addToFav(d.job_title, d)}>
-                                                {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
-                                            </button>
-                                        </div>
-                                        */}
+                                            onClick={
+                                            isFavorite(d._id)
+                                                ? () => removeFromFav(d.name, d._id)
+                                                : () => addToFav(d.name, d)
+                                            }
+                                        >
+                                            {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
+                                        </button>
+                                    )}
+                                                                                
+                                        
                                     </div>   
                                 </ul>
                             </div>
@@ -203,12 +212,8 @@ export default function SearchBar({ data: initialData }){
                     </div>
 
                     </div>
-                    </Link>                    
-                    <button className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
-                        ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}
-                        onClick={isFavorite(d._id) ? () => removeFromFav(d.name, d._id) : () => addToFav(d.name, d)}>
-                        {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
-                    </button>
+                    </div>                    
+                    
                 </div>
             ))}
             </div>
