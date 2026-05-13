@@ -135,13 +135,13 @@ export default function HomeDisplay(){
 
         {characters.map((d, index) => (
                 
-                <div key={d._id} className="relative card  bg-base-100/5 card-xs shadow-sm">
+                <div key={d._id} className="relative card  bg-base-100 card-xs shadow-sm">
  
   
                     {/* content */}
                     
                     <div className="block">
-                    <div className="card bg-base-100/5  shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
+                    <div className="card bg-base-100  shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
                         <div className="grid grid-cols-2 gap-2  p-8 grid-col-grow">
@@ -160,10 +160,10 @@ export default function HomeDisplay(){
                             <div className="flex flex-col gap-2">
                                 {/* put the title and description of the movie in the cards */}
                                 <Link to={`/character/${d._id}`}  className="no-underline">
-                                <h2 className="card-title primary-font text-[#ffffff] text-2xl hover:underline">
+                                <h2 className="card-title primary-font  text-2xl hover:underline">
                                     {d.name}
                                 </h2>
-                                <h3 className="text-lg text-[#ffffff]">
+                                <h3 className="text-lg">
                                 {users[d.owner_uid]?.user?.displayName || "Unknown User"}
                                 </h3>
                                 </Link>
@@ -178,7 +178,7 @@ export default function HomeDisplay(){
                                             {d.tags.map((tag, i) => (
                                             <span
                                                 key={i}
-                                                className="badge badge-outline badge-primary text-[#ffffff]"
+                                                className="badge badge-outline badge-primary"
                                             >
                                                 {tag}
                                             </span>

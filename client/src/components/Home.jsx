@@ -56,14 +56,10 @@ export default function Home() {
 
           <p className="
               mb-5 text-1xl font-bold
-              bg-no-repeat
-              bg-clip-text text-transparent
-              bg-[length:200%_200%]
-              animate-background-pan
-              drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]
+             
             "
             style={{
-              backgroundImage: `url(${galaxyTexture})`,
+              
               WebkitTextStroke: "0.25px white",
             }}>
             Welcome to Constellations, we seek to allow people to share characters they have created,
