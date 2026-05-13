@@ -6,7 +6,7 @@ import UserProfile from "../components/profile/UserProfile";
 
 import FallbackElement from "../components/FallbackElement";
 import Home from "../components/Home";
-import ErrorPage from "../components/ErrorPage";
+import ErrorPage, { ErrorBoundary } from "../components/ErrorPage";
 
 import Root from "../layout/Root";
 
@@ -33,6 +33,7 @@ const MainRouter = [
       { index: true,
         Component: Home,
         HydrateFallback: FallbackElement,
+        ErrorBoundary,
       },
         { path: "explore",
           element: (
@@ -80,8 +81,11 @@ const MainRouter = [
 
         { path: "favorites-dashboard",
           element: (
+            
             <PrivateRoute allowedRoles={["creator"]}>
-              <FavoriteCharacterDashboard />
+              <DisabledAccountRoute>
+                <FavoriteCharacterDashboard />
+              </DisabledAccountRoute>
             </PrivateRoute>
           )
         },
@@ -123,7 +127,9 @@ const MainRouter = [
           path: "profile/:uid",
           element: (
             <PrivateRoute allowedRoles={["creator", "admin"]}>
-              <UserProfile />
+              <DisabledAccountRoute>
+                <UserProfile />
+              </DisabledAccountRoute>
             </PrivateRoute>
           )
         },
