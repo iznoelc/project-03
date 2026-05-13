@@ -23,6 +23,9 @@ export default function SearchBar({ data: initialData }){
 
     const { user, favChars} = useAuth(); 
 
+    // User array for display of creator display names
+    const [users, setUsers] = useState({});
+
     const { addToFav, removeFromFav } = useFavoriteCharacters(); // use custom hook to get the favorites list and functions to add/remove movies from favorites
 
     //console.log("favCharacters:", favChars);
@@ -72,6 +75,62 @@ export default function SearchBar({ data: initialData }){
             normalizeId(fav) === charId.toString()
         );
     };
+
+
+    // Function to fetch the user names
+    async function fetchCharacterCreators(user) {
+        try {
+            const token = await user.getIdToken();
+
+            // get unique owner IDs
+            const uniqueIds = [...new Set(data.map(d => d.owner_uid))];
+
+            const results = await Promise.all(
+                uniqueIds.map(async (uid) => {
+                    const res = await fetch(
+                        `${import.meta.env.VITE_API_URL}/users/${uid}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    if (!res.ok) {
+                        console.warn("Failed to fetch user:", uid);
+                        return null;
+                    }
+
+                    const userData = await res.json();
+                    console.log("Fetching user:", uid);
+
+                    return { uid, userData };
+                })
+            );
+
+            // convert to lookup object
+            const userMap = {};
+            results.forEach(result => {
+                if (result) {
+                    userMap[result.uid] = result.userData;
+                }
+            });
+
+            setUsers(userMap);
+            console.log("User map:", userMap);
+
+        } catch (err) {
+            console.error("Error fetching users:", err);
+        }
+    }
+
+    // Use effect for getting user names for the display
+    useEffect(() => {
+        if (!user || data.length === 0) return;
+
+        fetchCharacterCreators(user);
+    }, [user, data]);
+
 
 
 
@@ -167,7 +226,10 @@ export default function SearchBar({ data: initialData }){
                                 <h2 className="card-title primary-font text-2xl hover:underline">
                                     {d.name}
                                 </h2>
-                                <h3 className="text-lg">{d.creator}</h3>
+                                <h3 className="text-lg">
+                                {users[d.owner_uid]?.user?.displayName || "Unknown User"}
+                                </h3>
+
                                 </Link>
                                 
                                 

@@ -10,6 +10,10 @@ export default function HomeDisplay(){
 
     const { user, favChars} = useAuth(); 
 
+    // User array for display of creator display names
+    const [users, setUsers] = useState({});
+
+
     const { addToFav, removeFromFav } = useFavoriteCharacters(); // use custom hook to get the favorites list and functions to add/remove movies from favorites
     const [characters, setCharacters] = useState([]); // Data for the characters being fetched
   
@@ -62,6 +66,60 @@ export default function HomeDisplay(){
             normalizeId(fav) === charId.toString()
         );
     };
+
+    // Function to fetch the user names
+    async function fetchCharacterCreators(user) {
+        try {
+            const token = await user.getIdToken();
+
+            // get unique owner IDs
+            const uniqueIds = [...new Set(characters.map(d => d.owner_uid))];
+
+            const results = await Promise.all(
+                uniqueIds.map(async (uid) => {
+                    const res = await fetch(
+                        `${import.meta.env.VITE_API_URL}/users/${uid}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    if (!res.ok) {
+                        console.warn("Failed to fetch user:", uid);
+                        return null;
+                    }
+
+                    const userData = await res.json();
+                    console.log("Fetching user:", uid);
+
+                    return { uid, userData };
+                })
+            );
+
+            // convert to lookup object
+            const userMap = {};
+            results.forEach(result => {
+                if (result) {
+                    userMap[result.uid] = result.userData;
+                }
+            });
+
+            setUsers(userMap);
+            console.log("User map:", userMap);
+
+        } catch (err) {
+            console.error("Error fetching users:", err);
+        }
+    }
+
+    // Use effect for getting user names for the display
+    useEffect(() => {
+        if (!user || characters.length === 0) return;
+
+        fetchCharacterCreators(user);
+    }, [user, characters]);    
     
     if (loading) {
         return (
@@ -105,7 +163,9 @@ export default function HomeDisplay(){
                                 <h2 className="card-title primary-font text-[#ffffff] text-2xl hover:underline">
                                     {d.name}
                                 </h2>
-                                <h3 className="text-lg text-[#ffffff]">{d.creator}</h3>
+                                <h3 className="text-lg text-[#ffffff]">
+                                {users[d.owner_uid]?.user?.displayName || "Unknown User"}
+                                </h3>
                                 </Link>
                                 
                                 

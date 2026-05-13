@@ -1,5 +1,6 @@
 import galaxyTexture from "../assets/galaxy_texture.jpg";
 import HomeDisplay from "./HomeDisplay";
+import { Link } from "react-router-dom";
 
 
 export default function Home() {
@@ -70,7 +71,7 @@ export default function Home() {
             from the many characters and tools we host
           </p>
 
-          <button className="btn btn-primary">Explore</button>
+          <Link to={`/explore`} className="btn btn-primary">Explore</Link>
           
         </div>
         
