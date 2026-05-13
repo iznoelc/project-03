@@ -15,13 +15,13 @@ const { createCharacter, getAllCharacters, deleteCharacter, getCharacterByID } =
 router.post("/", verifyFirebaseToken, createCharacter);
 
 // get a character of the matching _id
-router.get("/:_id", verifyFirebaseToken, getCharacterByID);
+router.get("/:id", verifyFirebaseToken, getCharacterByID);
 
 // get all character
 router.get("/", verifyFirebaseToken, getAllCharacters);
 
 // delete character by MongoDB _id
-router.delete("/:_id", verifyFirebaseToken, deleteCharacter);
+router.delete("/:id", verifyFirebaseToken, deleteCharacter);
 
 
 

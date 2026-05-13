@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
 export default function CharacterDetailPage() {
     const { id } = useParams(); // ← get character ID from URL
@@ -7,20 +9,30 @@ export default function CharacterDetailPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchCharacter() {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`);
-                const data = await res.json();
-                setCharacter(data.character || data); // depending on your backend shape
-            } catch (err) {
-                console.error("Failed to load character:", err);
-            } finally {
-                setLoading(false);
-            }
-        }
+    async function fetchCharacter() {
+        try {
+            const auth = getAuth();
+            const token = await auth.currentUser.getIdToken();
 
-        fetchCharacter();
-    }, [id]);
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await res.json();
+            console.log("Fetched character:", data);
+            setCharacter(data);
+        } catch (err) {
+            console.error("Failed to load character:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    fetchCharacter();
+}, [id]);
+
 
     if (loading) return <div className="p-6 text-center">Loading...</div>;
     if (!character) return <div className="p-6 text-center">Character not found.</div>;
@@ -31,7 +43,7 @@ export default function CharacterDetailPage() {
             {/* Avatar and Name */}
             <div className="flex items-center gap-6">
                 <div className="avatar">
-                    <div className="mask mask-star w-24">
+                    <div className="mask mask-heart w-24">
                         <img src={character.iconImg} alt={character.name} />
                     </div>
                 </div>
@@ -64,7 +76,7 @@ export default function CharacterDetailPage() {
                 <img
                     src={character.referenceImg}
                     alt="Reference"
-                    className="rounded-lg max-h-96 object-cover"
+                    className="rounded-lg max-h-96 w-40 object-cover"
                 />
             </div>
 
@@ -79,10 +91,104 @@ export default function CharacterDetailPage() {
             {/* Action Buttons */}
             <div className="flex gap-4">
                 <button className="btn btn-primary">Edit</button>
-                <button className="btn btn-error">Delete</button>
-                <button className="btn btn-accent">Export</button>
+                <button
+                    className="btn btn-accent"
+                    onClick={() => exportCharacter(character)}
+                >
+                    Export
+                </button>
+                <button
+                    className="btn btn-error"
+                    onClick={() => deleteCharacterById(id)}
+                >
+                    Delete
+                </button>
             </div>
 
         </div>
     );
 }
+
+// Reusable confirm dialog
+function confirmToast(message = "Are you sure?") {
+    return new Promise((resolve) => {
+        toast(({ closeToast }) => (
+            <div>
+                <p className="font-bold mb-2">{message}</p>
+
+                <div className="flex gap-2">
+                    <button
+                        className="btn btn-error btn-sm"
+                        onClick={() => {
+                            resolve(true);
+                            closeToast();
+                        }}
+                    >
+                        Yes
+                    </button>
+
+                    <button
+                        className="btn btn-sm"
+                        onClick={() => {
+                            resolve(false);
+                            closeToast();
+                        }}
+                    >
+                        No
+                    </button>
+                </div>
+            </div>
+        ), {
+            position: "top-center",
+            autoClose: false,
+            closeOnClick: false,
+            draggable: false,
+            hideProgressBar: true,
+        });
+    });
+}
+
+// DELETE CHARACTER
+async function deleteCharacterById(characterId) {
+    const confirmed = await confirmToast("Delete this character?");
+    if (!confirmed) return;
+
+    try {
+        const auth = getAuth();
+        const token = await auth.currentUser.getIdToken();
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${characterId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        toast.success("Character deleted!");
+        return true;
+    } catch (err) {
+        console.error("Error deleting character", err);
+        toast.error("Failed to delete character.");
+        return false;
+    }
+}
+
+// EXPORT CHARACTER (download JSON)
+function exportCharacter(character) {
+    const blob = new Blob(
+        [JSON.stringify(character, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = `${character.name.replace(/\s+/g, "_")}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+

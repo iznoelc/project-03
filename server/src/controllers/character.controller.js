@@ -69,7 +69,7 @@ async function getAllCharacters(req, res) {
 // DELETE: Remove a Character by ID
 async function deleteCharacter(req, res) {
     try {
-        const deleted = await Character.findByIdAndDelete(req.params._id);
+        const deleted = await Character.findByIdAndDelete(req.params.id);
 
         if (!deleted) {
             return res.status(404).json({ message: "Character not found" });
