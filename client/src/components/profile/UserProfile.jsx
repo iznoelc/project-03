@@ -205,7 +205,7 @@ export default function UserProfile(){
     return (
         <>
         <div className="flex flex-col items-center justify-center p-24">
-            <div className="flex flex-col bg-base-200 rounded-lg items-center p-16 gap-2 shadow-2xl w-full max-w-4xl">
+            <div className="flex flex-col bg-base-300 rounded-lg items-center p-16 gap-2 shadow-2xl w-full max-w-4xl">
                 {isEditingPfp ? 
                 <>
                 <form className="flex flex-col items-center w-full" onSubmit={handleFileUploaded}>
