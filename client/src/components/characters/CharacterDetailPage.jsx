@@ -4,35 +4,69 @@ import { getAuth } from "firebase/auth";
 import { toast } from "react-toastify";
 
 export default function CharacterDetailPage() {
-    const { id } = useParams(); // ← get character ID from URL
+    const { id } = useParams();
     const [character, setCharacter] = useState(null);
+    const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
 
+    // Fetch character
     useEffect(() => {
-    async function fetchCharacter() {
+        async function fetchCharacter() {
+            try {
+                const auth = getAuth();
+                const token = await auth.currentUser.getIdToken();
+
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+                setCharacter(data);
+                setFormData(data);
+            } catch (err) {
+                console.error("Failed to load character:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchCharacter();
+    }, [id]);
+
+    //Note: These are not in helper functions due to variable definitions and the likes order
+    // Handle input changes
+    function handleChange(e) {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    // Save changes
+    async function saveChanges() {
         try {
             const auth = getAuth();
             const token = await auth.currentUser.getIdToken();
 
+            const { ...cleanBody } = formData;
+
             const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
+                method: "PATCH",
                 headers: {
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify(cleanBody)
             });
 
-            const data = await res.json();
-            console.log("Fetched character:", data);
-            setCharacter(data);
+            if (!res.ok) throw new Error("Failed to save");
+
+            toast.success("Character updated!");
+            setCharacter(formData);
+            setIsEditing(false);
         } catch (err) {
-            console.error("Failed to load character:", err);
-        } finally {
-            setLoading(false);
+            console.error("Save error:", err);
+            toast.error("Failed to update character.");
         }
     }
-
-    fetchCharacter();
-}, [id]);
-
 
     if (loading) return <div className="p-6 text-center">Loading...</div>;
     if (!character) return <div className="p-6 text-center">Character not found.</div>;
@@ -40,7 +74,7 @@ export default function CharacterDetailPage() {
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-6">
 
-            {/* Avatar and Name */}
+            {/* Avatar + Name */}
             <div className="flex items-center gap-6">
                 <div className="avatar">
                     <div className="mask mask-heart w-24">
@@ -49,67 +83,183 @@ export default function CharacterDetailPage() {
                 </div>
 
                 <div>
-                    <h1 className="text-4xl font-bold">{character.name}</h1>
-                    <p className="text-sm opacity-70">Created by: {character.creator}</p>
+                    {!isEditing ? (
+                        <h1 className="text-4xl font-bold">{character.name}</h1>
+                    ) : (
+                        <input
+                            name="name"
+                            className="input input-bordered w-full"
+                            value={formData.name}
+                            onChange={handleChange}
+                        />
+                    )}
+
+                    <p className="text-sm opacity-70">
+                        Created by: {!isEditing ? (
+                            character.creator
+                        ) : (
+                            <input
+                                name="creator"
+                                className="input input-bordered w-full"
+                                value={formData.creator}
+                                onChange={handleChange}
+                            />
+                        )}
+                    </p>
                 </div>
             </div>
 
             {/* Bio */}
             <div className="card bg-base-200 p-4">
                 <h2 className="text-xl font-semibold mb-2">Bio</h2>
-                <p>{character.bio}</p>
+
+                {!isEditing ? (
+                    <p>{character.bio}</p>
+                ) : (
+                    <textarea
+                        name="bio"
+                        className="textarea textarea-bordered w-full"
+                        value={formData.bio}
+                        onChange={handleChange}
+                    />
+                )}
             </div>
 
             {/* Tags */}
             <div className="card bg-base-200 p-4">
                 <h2 className="text-xl font-semibold mb-2">Tags</h2>
-                <div className="flex flex-wrap gap-2">
-                    {character.tags?.map(tag => (
-                        <span key={tag} className="badge badge-outline">{tag}</span>
-                    ))}
-                </div>
+
+                {!isEditing ? (
+                    <div className="flex flex-wrap gap-2">
+                        {character.tags?.map(tag => (
+                            <span key={tag} className="badge badge-outline">{tag}</span>
+                        ))}
+                    </div>
+                ) : (
+                    <input
+                        name="tags"
+                        className="input input-bordered w-full"
+                        value={formData.tags?.join(", ") || ""}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                tags: e.target.value.split(",").map(t => t.trim())
+                            })
+                        }
+                    />
+                )}
             </div>
 
             {/* Reference Image */}
             <div className="card bg-base-200 p-4">
                 <h2 className="text-xl font-semibold mb-2">Reference Image</h2>
-                <img
-                    src={character.referenceImg}
-                    alt="Reference"
-                    className="rounded-lg max-h-96 w-40 object-cover"
-                />
+
+                {!isEditing ? (
+                    <img
+                        src={character.referenceImg}
+                        alt="Reference"
+                        className="rounded-lg max-h-96 w-40 object-cover"
+                    />
+                ) : (
+                    <input
+                        name="referenceImg"
+                        className="input input-bordered w-full"
+                        value={formData.referenceImg}
+                        onChange={handleChange}
+                    />
+                )}
             </div>
 
-            {/* Visibility and Exportable */}
+            {/* Details */}
             <div className="card bg-base-200 p-4">
                 <h2 className="text-xl font-semibold mb-2">Details</h2>
-                <p><strong>Visibility:</strong> {character.vis}</p>
-                <p><strong>Exportable:</strong> {character.exportable ? "Yes" : "No"}</p>
-                <p><strong>Link:</strong> {character.link}</p>
+
+                {!isEditing ? (
+                    <>
+                        <p><strong>Visibility:</strong> {character.vis}</p>
+                        <p><strong>Exportable:</strong> {character.exportable ? "Yes" : "No"}</p>
+                        <p><strong>Link:</strong> {character.link}</p>
+                    </>
+                ) : (
+                    <>
+                        <input
+                            name="vis"
+                            className="input input-bordered w-full mb-2"
+                            value={formData.vis}
+                            onChange={handleChange}
+                        />
+
+                        <select
+                            name="exportable"
+                            className="select select-bordered w-full mb-2"
+                            value={formData.exportable}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    exportable: e.target.value === "true"
+                                })
+                            }
+                        >
+                            <option value="true">Exportable</option>
+                            <option value="false">Not Exportable</option>
+                        </select>
+
+                        <input
+                            name="link"
+                            className="input input-bordered w-full"
+                            value={formData.link}
+                            onChange={handleChange}
+                        />
+                    </>
+                )}
             </div>
 
-            {/* Action Buttons */}
+            {/* Buttons */}
             <div className="flex gap-4">
-                <button className="btn btn-primary">Edit</button>
-                <button
-                    className="btn btn-accent"
-                    onClick={() => exportCharacter(character)}
-                >
-                    Export
-                </button>
+                {!isEditing ? (
+                    <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                        Edit
+                    </button>
+                ) : (
+                    <>
+                        <button className="btn btn-success" onClick={saveChanges}>
+                            Save
+                        </button>
+                        <button
+                            className="btn"
+                            onClick={() => {
+                                setFormData(character);
+                                setIsEditing(false);
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </>
+                )}
+
                 <button
                     className="btn btn-error"
                     onClick={() => deleteCharacterById(id)}
                 >
                     Delete
                 </button>
-            </div>
 
+                <button
+                    className="btn btn-accent"
+                    onClick={() => exportCharacter(character)}
+                >
+                    Export
+                </button>
+            </div>
         </div>
     );
 }
 
-// Reusable confirm dialog
+/* ----------------------------------------------------
+                helper functions
+   (just for orgainizational purposes, not technical)
+---------------------------------------------------- */
+
 function confirmToast(message = "Are you sure?") {
     return new Promise((resolve) => {
         toast(({ closeToast }) => (
@@ -148,7 +298,6 @@ function confirmToast(message = "Are you sure?") {
     });
 }
 
-// DELETE CHARACTER
 async function deleteCharacterById(characterId) {
     const confirmed = await confirmToast("Delete this character?");
     if (!confirmed) return;
@@ -159,23 +308,19 @@ async function deleteCharacterById(characterId) {
 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${characterId}`, {
             method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        if (!res.ok) throw new Error("Delete failed");
 
         toast.success("Character deleted!");
-        return true;
+        window.location.href = "/characters";
     } catch (err) {
-        console.error("Error deleting character", err);
+        console.error("Delete error:", err);
         toast.error("Failed to delete character.");
-        return false;
     }
 }
 
-// EXPORT CHARACTER (download JSON)
 function exportCharacter(character) {
     const blob = new Blob(
         [JSON.stringify(character, null, 2)],
@@ -191,4 +336,3 @@ function exportCharacter(character) {
 
     URL.revokeObjectURL(url);
 }
-

@@ -8,6 +8,25 @@
 
 const Character = require("../models/character.model");
 
+async function updateCharacter(req, res) {
+    try {
+        const updated = await Character.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ error: "Character not found" });
+        }
+
+        res.json(updated);
+    } catch (err) {
+        console.error("Update error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
 // POST: Create a new Character
 async function createCharacter(req, res) {
     try {
@@ -98,4 +117,4 @@ async function getCharacterByID(req, res) {
     }
 }
 
-module.exports = {createCharacter,getAllCharacters,deleteCharacter, getCharacterByID};
+module.exports = {updateCharacter, createCharacter,getAllCharacters,deleteCharacter, getCharacterByID};

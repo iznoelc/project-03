@@ -9,7 +9,10 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { createCharacter, getAllCharacters, deleteCharacter, getCharacterByID } = require("../controllers/character.controller");
+const { updateCharacter, createCharacter, getAllCharacters, deleteCharacter, getCharacterByID } = require("../controllers/character.controller");
+
+//used for the editing portion of teh details page
+router.patch("/:id", verifyFirebaseToken, updateCharacter);
 
 // create character
 router.post("/", verifyFirebaseToken, createCharacter);
