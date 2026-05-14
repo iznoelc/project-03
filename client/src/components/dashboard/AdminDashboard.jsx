@@ -11,9 +11,15 @@ export default function AdminDashboard() {
     const [actionQuery, setActionQuery] = useState("");
 
     useEffect(() => {
-        if (!user) return; // prevent loading hang
-        fetchUsers(setUsersList, user);
+        if (!user) return;
+
+        fetchUsers((data) => {
+            const filtered = data.filter(u => u.uid !== user.uid);
+            setUsersList(filtered);
+        }, user);
+
     }, [user]);
+
 
     // LEFT — Active users
     const activeList = usersList.filter(
@@ -29,7 +35,7 @@ export default function AdminDashboard() {
 
 
     // Stats (backend uses "creator" not "user")
-    const adminCount = usersList.filter(u => u.role === "admin").length;
+    const adminCount = usersList.filter(u => u.role === "admin").length+1;
     const userCount = usersList.filter(u => u.role === "creator").length;
 
     const [randomNum] = useState(() => Math.floor(Math.random() * 1000));
