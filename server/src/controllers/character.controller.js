@@ -8,6 +8,8 @@
 
 const Character = require("../models/character.model");
 
+const { validateNewCharacter } = require("../validators/character.validator");
+
 async function updateCharacter(req, res) {
     try {
         const updated = await Character.findByIdAndUpdate(
@@ -29,6 +31,13 @@ async function updateCharacter(req, res) {
 
 // POST: Create a new Character
 async function createCharacter(req, res) {
+    const { error } = validateNewCharacter(req.body);
+
+    // throw an error if new character isn't valid, otherwise continue
+    if (error) {
+        return res.status(400).send(error.message);
+    }
+
     try {
         const {
             owner_uid,

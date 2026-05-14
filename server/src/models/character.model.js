@@ -23,7 +23,7 @@ const characterSchema = new mongoose.Schema({
         type: String, required: true,
     },
     iconImg: {
-        type: String,
+        type: String, required: true,
     },
     vis: {
         type: String, enum: ["public", "private"], default: "private", required: true
@@ -32,10 +32,10 @@ const characterSchema = new mongoose.Schema({
         type: Boolean, default: true, required: true,
     },
     link: {
-        type: String,
+        type: String, default: ""
     },
     referenceImg: {
-        type: String,
+        type: String, default: ""
     },
     tags: {
         type: [String], default: []

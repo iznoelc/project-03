@@ -5,7 +5,7 @@ import { createCharacter } from "../../utils/CreateDeleteCharacter";
 import uploadToImgBB from "../../imgbb/imgbb";
 
 export default function CreateCharacter(){
-    const { user } = useAuth();
+    const { user, dbUser } = useAuth();
 
     const [characters, setCharacters] = useState([]); // Data for the characters being fetched
 
@@ -16,7 +16,7 @@ export default function CreateCharacter(){
     const [previewIcon, setPreviewIcon] = useState(null);
     const [previewRef, setPreviewRef] = useState(null);
 
-    
+    const [creatorChecked, setCreatorChecked] = useState(false);
 
 
 
@@ -95,29 +95,27 @@ export default function CreateCharacter(){
     const addCharacter = async () => {
 
         const {
-        owner_uid,
-        name,
-        bio,
-        creator,
-        iconImg,
-        vis,
-        exportable,
-        link,
-        referenceImg,
-        tags
+            owner_uid,
+            name,
+            bio,
+            creator,
+            iconImg,
+            vis,
+            exportable,
+            link,
+            referenceImg,
+            tags
         } = formData;
 
         // Basic validation
         if (!owner_uid){
-        errorNotify("Owner id is not valid: " + owner_uid)
+            errorNotify("Owner UID is not valid: " + owner_uid);
         }
-        if (
-        !name.trim() ||
-        !creator.trim()
-        
-        ) {
-        errorNotify("Character Name and Creator Name are required.");
-        return;
+        if (!name.trim() || !creator || !bio.trim()) {
+            console.log(name, creator, bio)
+            console.log(dbUser);
+            errorNotify("You are missing one or more required fields.");
+            return;
         }
 
         // Duplicate check
@@ -129,15 +127,10 @@ export default function CreateCharacter(){
             );
         });
 
-        
-
         if (alreadyExists) {
         errorNotify("This character already exists.");
         return;
         }
-        
-        
-        
             let iconUrl = formData.iconImg;
             let refUrl = formData.referenceImg;
 
@@ -211,68 +204,89 @@ export default function CreateCharacter(){
 
     return (
         <>
-        <h1>This is the page to create a new character.</h1>
-
-
-        <div >
-
-            {/* Job Title */}
+        <div className="p-12 flex flex-col">
+            <h1 className="text-center text-4xl">CHARACTER CREATION</h1>
+            <h2 className="text-center">Starred fields are required.</h2>
+            {/* Character Name */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Character Name</legend>
+              <legend className="fieldset-legend">Character Name*</legend>
               <input
                 type="text"
                 className="input w-full"
                 name="name"
+                id="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g. John Fantasy"
+                placeholder="i.e. Gleebus"
               />
             </fieldset>
 
-            {/* Category */}
+            {/* Bio */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Character Biography</legend>
-              <input
-                type="text"
-                className="input w-full"
+              <legend className="fieldset-legend">Character Bio*</legend>
+            <textarea
+                id="bio"
                 name="bio"
+                className="w-full border border-base-content/20 rounded-md p-2 focus:outline-white"
                 value={formData.bio}
+                placeholder="Give your character a bio! It can be about their description, personality, etc. And as long as you want!"
                 onChange={handleChange}
-                placeholder="e.g. John Fantasy once lived..."
-              />
+            />
             </fieldset>
 
-            {/* Location */}
+            {/* Creator */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Creator</legend>
-              <input
+              <legend className="fieldset-legend">Creator*</legend>
+            
+
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={creatorChecked}
+                    onChange={(e) => {
+                        const checked = e.target.checked;
+                        setCreatorChecked(checked);
+                        setFormData({
+                            ...formData,
+                            creator: checked ? dbUser?.user?.username : "",
+                        });
+                    }}
+                />
+                I am the creator
+            </label>
+
+            {!creatorChecked && (
+                <input
                 type="text"
                 className="input w-full"
                 name="creator"
                 value={formData.creator}
                 onChange={handleChange}
+                placeholder="Credit whoever designed your character!"
               />
+            )}
             </fieldset>
 
 
             {/* Tags */}
             <fieldset className="fieldset">
               <legend className="fieldset-legend">
-                Character Tags (comma separated)
+                Character Tags (Comma Separated)
               </legend>
               <input
                 type="text"
                 className="input w-full"
                 onChange={handleTagsChange}
-                placeholder=""
+                placeholder="Enter up to 3 tags."
               />
             </fieldset>
             
             <fieldset className="fieldset">
                 <legend className="fieldset-legend">Character Icon</legend>
 
-                {previewRef && (
-                    <img src={previewRef} className="w-32 h-32 object-cover rounded-lg mb-2" />
+                {previewIcon && (
+                    <img src={previewIcon} className="w-32 h-32 object-cover rounded-lg mb-2" />
                 )}
 
                 <input
@@ -283,8 +297,10 @@ export default function CreateCharacter(){
                 />
             </fieldset>
 
-
-            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+            { /* privacy and exportability */ }
+            <div className="flex flex-col items-center gap-2 p-4">
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box sm:w-sm md:w-lg lg:w-2xl border p-4">
+                <legend className="fieldset-legend">Visibility*</legend>
                 <label className="label justify-center">
                     Public
                     <input type="checkbox" defaultChecked className="toggle" 
@@ -293,9 +309,12 @@ export default function CreateCharacter(){
                     />
                     Private
                 </label>
+                <p className="text-center">Nobody but you will be able to see a private character.</p>
             </fieldset>
-
-            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+            
+            
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box sm:w-sm md:w-lg lg:w-2xl border p-4">
+                <legend className="fieldset-legend">Exportable*</legend>
                 <label className="label justify-center">
                     Can Export
                     <input type="checkbox" defaultChecked className="toggle" 
@@ -304,13 +323,15 @@ export default function CreateCharacter(){
                     />
                     Cannot Export
                 </label>
+                <p className="text-center">"Can export" will allow others to export information about your character!</p>
             </fieldset>
+            </div>
             
             <fieldset className="fieldset">
                 <legend className="fieldset-legend">Reference Picture</legend>
 
-                {previewIcon && (
-                    <img src={previewIcon} className="w-32 h-32 object-cover rounded-lg mb-2" />
+                {previewRef && (
+                    <img src={previewRef} className="w-32 h-32 object-cover rounded-lg mb-2" />
                 )}
 
                 <input
@@ -322,13 +343,14 @@ export default function CreateCharacter(){
             </fieldset>
 
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Link</legend>
+              <legend className="fieldset-legend">Optional External Link</legend>
               <input
                 type="text"
                 className="input w-full"
                 name="link"
                 value={formData.link}
                 onChange={handleChange}
+                placeholder="Wanna link an external source relating to your character? Put it here!"
               />
             </fieldset>
 

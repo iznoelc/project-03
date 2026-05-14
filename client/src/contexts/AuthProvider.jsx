@@ -92,7 +92,7 @@
           setRole(data.user?.role || data.role);
           setAccountStatus(data.user?.accountStatus || data.accountStatus);
           setFavChars(data.user?.favChars || data.favChars);
-          setDbUser(data.user);
+          setDbUser(data);
         } catch (error) {
           console.log("[ERROR FETCHING USER ROLE, ACCOUNT STATUS, OR FAVORITE CHARACTERS]: ", error.message);
           setRole(null);
@@ -121,7 +121,7 @@
       setRole(data.user?.role || data.role);
       setAccountStatus(data.user?.accountStatus || data.accountStatus);
       setFavChars(data.user?.favChars || data.favChars);
-      setDbUser(data.user);
+      setDbUser(data);
     };
 
     // prevents error if auth is still loading and the user is trying to access a protected route

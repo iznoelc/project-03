@@ -11,7 +11,7 @@ export default function NavBar(){
 
     // nav bar if the user is not logged in
     if (!loggedIn || extraDataLoading) return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-base-200 shadow-sm">
         <div className="navbar-start">
             <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
         </div>
@@ -33,7 +33,7 @@ export default function NavBar(){
 
     // nav bar if the user is logged in
     if (loggedIn) return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-base-200 shadow-sm">
         <div className="navbar-start">
             <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
         </div>
@@ -69,7 +69,7 @@ export default function NavBar(){
             </div>
             <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                {dbUser !== null && dbUser?.pfp !== "" ? <img src={dbUser.pfp} className="w-10 h-10" /> : <IoPersonCircleOutline className="text-4xl" />}
+                {dbUser !== null && dbUser?.user?.pfp !== "" ? <img src={dbUser?.user?.pfp} className="w-10 h-10" /> : <IoPersonCircleOutline className="text-4xl" />}
             </div>
             <ul
                 tabIndex="-1"

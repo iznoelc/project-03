@@ -1,14 +1,20 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { toast } from "react-toastify";
+import useAuth from "../../hooks/useAuth";
 
 export default function CharacterDetailPage() {
+    const { user } = useAuth();
     const { id } = useParams();
+    const navigate = useNavigate();
     const [character, setCharacter] = useState(null);
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
+    const [characterOwner, setCharacterOwner] = useState(null);
+    
+    const [isOwnCharacter, setIsOwnCharacter] = useState(false);
 
     // Fetch character
     useEffect(() => {
@@ -22,8 +28,27 @@ export default function CharacterDetailPage() {
                 });
 
                 const data = await res.json();
+                console.log("Chaarcter data: ", data);
                 setCharacter(data);
+                setIsOwnCharacter(data.owner_uid === user.uid);
                 setFormData(data);
+
+                // get the character's owner's information
+                try {
+                    const ownerRes = await fetch(`${import.meta.env.VITE_API_URL}/users/${data.owner_uid}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (!ownerRes.ok){
+                        throw new Error(`Failed to fetch character owner, status: ${ownerRes.status}`);
+                    }
+
+                    const ownerData = await ownerRes.json();
+                    setCharacterOwner(ownerData);
+                } catch (error) {
+                    console.error("Failed to fetch character owner:", error);
+                }
+
             } catch (err) {
                 console.error("Failed to load character:", err);
             } finally {
@@ -72,7 +97,41 @@ export default function CharacterDetailPage() {
     if (!character) return <div className="p-6 text-center">Character not found.</div>;
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <>
+        <div className="grid place-items-center pt-16">
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 bg-base-200 max-w-5xl justify-center items-center p-16">
+                { /* left col */}
+                <div className="flex items-center gap-6">                        
+                    <div className="avatar">
+                        <div className="mask mask-heart w-64">
+                            <img src={character.iconImg} alt={character.name} />
+                        </div>
+                    </div>
+                </div>
+
+                { /* right col */ }
+                <div className="flex flex-col items-center text-center">
+                        <div className="flex flex-col text-center gap-2 p-2">
+                            {!isEditing ? (
+                                <h1 className="text-4xl font-bold">{character.name}</h1>
+                            ) : (
+                                <input name="name" className="input input-bordered w-full" value={formData.name} onChange={handleChange} />
+                            )}
+                            <p className="text-sm opacity-70 hover:cursor-pointer hover:underline" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned by {characterOwner?.user?.username}</p>
+                            <p className="text-sm opacity-70">
+                                Creator Credit: {!isEditing ? character.creator : (
+                                    <input name="creator" className="input input-bordered w-full" value={formData.creator} onChange={handleChange} />
+                                )}
+                            </p>
+                            <button className="btn btn-primary">Reference</button>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        
+        
 
             {/* Avatar + Name */}
             <div className="flex items-center gap-6">
@@ -216,6 +275,8 @@ export default function CharacterDetailPage() {
 
             {/* Buttons */}
             <div className="flex gap-4">
+                {isOwnCharacter && (
+                    <>
                 {!isEditing ? (
                     <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
                         Edit
@@ -236,6 +297,8 @@ export default function CharacterDetailPage() {
                         </button>
                     </>
                 )}
+                
+                
 
                 <button
                     className="btn btn-error"
@@ -243,6 +306,8 @@ export default function CharacterDetailPage() {
                 >
                     Delete
                 </button>
+                </>
+                )}
 
                 <button
                     className="btn btn-accent"
@@ -251,8 +316,9 @@ export default function CharacterDetailPage() {
                     Export
                 </button>
             </div>
-        </div>
-    );
+        
+        </>
+    )
 }
 
 /* ----------------------------------------------------
