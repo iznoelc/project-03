@@ -7,8 +7,8 @@
  */
 
 import { Outlet } from "react-router";
-import NavBar from "../components/NavBar";
-import Footer from "../components/Footer";
+import NavBar from "../components/wrappers/NavBar";
+import Footer from "../components/wrappers/Footer";
 
 import FavoriteCharacterProvider from "../contexts/FavoriteCharacterProvider";
 

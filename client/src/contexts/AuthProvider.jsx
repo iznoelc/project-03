@@ -126,7 +126,7 @@
 
     // prevents error if auth is still loading and the user is trying to access a protected route
     // i.e. if user is trying to access dashboard and refreshes, prevents an error from showing if they are already logged in 
-    if (loading) {
+    if (loading || extraDataLoading) {
       return <div className="pt-64"><FallbackElement /></div>;
     }
 
