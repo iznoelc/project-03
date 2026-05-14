@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { toast } from "react-toastify";
+import uploadToImgBB from "../../imgbb/imgbb";
 import useAuth from "../../hooks/useAuth";
 
 export default function CharacterDetailPage() {
@@ -12,6 +13,9 @@ export default function CharacterDetailPage() {
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
+    const [iconFile, setIconFile] = useState(null);
+    const [refFile, setRefFile] = useState(null);
+
     const [characterOwner, setCharacterOwner] = useState(null);
     
     const [isOwnCharacter, setIsOwnCharacter] = useState(false);
@@ -67,31 +71,49 @@ export default function CharacterDetailPage() {
 
     // Save changes
     async function saveChanges() {
-        try {
-            const auth = getAuth();
-            const token = await auth.currentUser.getIdToken();
+    try {
+        const auth = getAuth();
+        const token = await auth.currentUser.getIdToken();
 
-            const { ...cleanBody } = formData;
+        // Copy form data
+        const cleanBody = { ...formData };
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(cleanBody)
-            });
+        // Upload icon if a new file was selected
+        if (iconFile) {
+            cleanBody.iconImg = await uploadToImgBB(iconFile);
+        }
 
-            if (!res.ok) throw new Error("Failed to save");
+        // Upload reference image if a new file was selected
+        if (refFile) {
+            cleanBody.referenceImg = await uploadToImgBB(refFile);
+        }
 
-            toast.success("Character updated!");
-            setCharacter(formData);
-            setIsEditing(false);
+        // Remove MongoDB fields
+        delete cleanBody._id;
+        delete cleanBody.__v;
+
+        // Send PATCH request
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(cleanBody)
+        });
+
+        if (!res.ok) throw new Error("Failed to save");
+
+        toast.success("Character updated!");
+        setCharacter(cleanBody);
+        setIsEditing(false);
+
         } catch (err) {
             console.error("Save error:", err);
             toast.error("Failed to update character.");
         }
     }
+
 
     if (loading) return <div className="p-6 text-center">Loading...</div>;
     if (!character) return <div className="p-6 text-center">Character not found.</div>;
@@ -139,7 +161,21 @@ export default function CharacterDetailPage() {
                     <div className="mask mask-heart w-24">
                         <img src={character.iconImg} alt={character.name} />
                     </div>
+
+                    {isEditing && (
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="file-input w-full mt-2"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                setIconFile(file);
+                            }}
+                        />
+                    )}
                 </div>
+
 
                 <div>
                     {!isEditing ? (
@@ -221,11 +257,16 @@ export default function CharacterDetailPage() {
                     />
                 ) : (
                     <input
-                        name="referenceImg"
-                        className="input input-bordered w-full"
-                        value={formData.referenceImg}
-                        onChange={handleChange}
+                        type="file"
+                        accept="image/*"
+                        className="file-input w-full"
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            setRefFile(file);
+                        }}
                     />
+
                 )}
             </div>
 
@@ -241,12 +282,21 @@ export default function CharacterDetailPage() {
                     </>
                 ) : (
                     <>
-                        <input
+                       <select
                             name="vis"
-                            className="input input-bordered w-full mb-2"
+                            className="select select-bordered w-full mb-2"
                             value={formData.vis}
-                            onChange={handleChange}
-                        />
+                            onChange={(e) =>
+                                setFormData(prev => ({
+                                    ...prev,
+                                    vis: e.target.value   // "public" or "private"
+                                }))
+                            }
+                        >
+                            <option value="public">Public</option>
+                            <option value="private">Private</option>
+                        </select>
+
 
                         <select
                             name="exportable"
