@@ -32,10 +32,10 @@ export default function UserProfile(){
     
 
     const [formData, setFormData] = useState({
-        displayName: dbUser.displayName,
-        bio: dbUser.bio,
-        username: dbUser.username,
-        pfp: dbUser.pfp,
+        displayName: dbUser?.user?.displayName,
+        bio: dbUser?.user?.bio,
+        username: dbUser?.user?.username,
+        pfp: dbUser?.user?.pfp,
     });
 
     const { usernameAvail, usernameChecking } = useUsernameCheck(formData.username);

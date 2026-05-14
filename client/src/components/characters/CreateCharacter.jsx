@@ -1,24 +1,23 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import { errorNotify, successNotify } from "../../utils/ToastifyNotifications";
+import { errorNotify } from "../../utils/ToastifyNotifications";
 import { createCharacter } from "../../utils/CreateDeleteCharacter";
 import uploadToImgBB from "../../imgbb/imgbb";
 
 export default function CreateCharacter(){
     const { user, dbUser } = useAuth();
-
-    const [characters, setCharacters] = useState([]); // Data for the characters being fetched
+    //const navigate = useNavigate();
 
     // Image variables
     const [iconFile, setIconFile] = useState(null);
     const [refFile, setRefFile] = useState(null);
 
+    // preview image variables
     const [previewIcon, setPreviewIcon] = useState(null);
     const [previewRef, setPreviewRef] = useState(null);
 
-    const [creatorChecked, setCreatorChecked] = useState(false);
-
-
+    const [creatorChecked, setCreatorChecked] = useState(false); // for creator credit field
 
     const [formData, setFormData] = useState({
         owner_uid: user?.uid || "",
@@ -93,19 +92,7 @@ export default function CreateCharacter(){
 
     // Function to call create character from the createDeleteCharacter util
     const addCharacter = async () => {
-
-        const {
-            owner_uid,
-            name,
-            bio,
-            creator,
-            iconImg,
-            vis,
-            exportable,
-            link,
-            referenceImg,
-            tags
-        } = formData;
+        const { owner_uid, name, bio, creator, } = formData;
 
         // Basic validation
         if (!owner_uid){
@@ -118,19 +105,6 @@ export default function CreateCharacter(){
             return;
         }
 
-        // Duplicate check
-        await fetchData(user);
-        const alreadyExists = characters.some(character => {
-            return (
-                character.name.toLowerCase() === name.trim().toLowerCase() &&
-                character.creator.toLowerCase() === creator.trim().toLowerCase()
-            );
-        });
-
-        if (alreadyExists) {
-        errorNotify("This character already exists.");
-        return;
-        }
             let iconUrl = formData.iconImg;
             let refUrl = formData.referenceImg;
 
@@ -152,56 +126,23 @@ export default function CreateCharacter(){
             };
         
 
-        await createCharacter(user, updatedForm)
+        await createCharacter(user, updatedForm);
 
         // Reset form
         setFormData({
-        owner_uid: user.uid,
-        name: "",
-        bio: "",
-        creator: "",
-        iconImg: "",
-        vis: "private",
-        exportable: false,
-        link: "",
-        referenceImg: "",
-        tags: []
+            owner_uid: user.uid,
+            name: "",
+            bio: "",
+            creator: "",
+            iconImg: "",
+            vis: "private",
+            exportable: false,
+            link: "",
+            referenceImg: "",
+            tags: []
         });
     };
-
-
     
-    async function fetchData(user, ) {
-        try {
-            const token = await user.getIdToken();
-
-            const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/characters`,
-            {
-                headers: {
-                Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-        
-        if (!res.ok) {
-          throw new Error("Failed to fetch characters");
-        }
-
-        const data = await res.json();
-        console.log("Fetched characters:", data);
-
-        setCharacters(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        
-      }
-
-    }
-    
-
-
     return (
         <>
         <div className="p-12 flex flex-col">
@@ -227,7 +168,7 @@ export default function CreateCharacter(){
             <textarea
                 id="bio"
                 name="bio"
-                className="w-full border border-base-content/20 rounded-md p-2 focus:outline-white"
+                className="w-full h-64 border border-base-content/20 rounded-md p-2 focus:outline-white"
                 value={formData.bio}
                 placeholder="Give your character a bio! It can be about their description, personality, etc. And as long as you want!"
                 onChange={handleChange}
@@ -365,13 +306,6 @@ export default function CreateCharacter(){
 
             </div>
           </div>
-
-
         </>
-
     )
-
-
-
-    
 }
