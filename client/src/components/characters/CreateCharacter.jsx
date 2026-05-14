@@ -67,7 +67,7 @@ export default function CreateCharacter(){
         } else {
             setFormData(prev => ({
             ...prev,
-            [name]: checked
+            [name]: !checked
             }));
         }
     };
