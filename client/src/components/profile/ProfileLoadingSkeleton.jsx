@@ -1,3 +1,8 @@
+/**
+ * Creates a skeleton of the profile using daisyUI's skeleton components. 
+ * 
+ * @author Created using Claude.
+ */
 export default function ProfileLoadingSkeleton() {
   return (
     <div className="flex flex-col items-center justify-center p-24">

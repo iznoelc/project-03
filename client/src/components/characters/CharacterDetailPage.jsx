@@ -2,8 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { toast } from "react-toastify";
+import { FaPen, FaTrash, FaSave,  } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
+import { TiExport } from "react-icons/ti";
+
 import uploadToImgBB from "../../imgbb/imgbb";
 import useAuth from "../../hooks/useAuth";
+
+import CharacterDetailsLoadingSkeleton from "./CharacterDetailsLoadingSkeleton";
 
 export default function CharacterDetailPage() {
     const { user } = useAuth();
@@ -16,6 +22,9 @@ export default function CharacterDetailPage() {
     const [iconFile, setIconFile] = useState(null);
     const [refFile, setRefFile] = useState(null);
 
+    const [previewCharaIcon, setPreviewCharaIcon] = useState(null);
+    const [previewRefImg, setPreviewRefImg] = useState(null);
+
     const [characterOwner, setCharacterOwner] = useState(null);
     
     const [isOwnCharacter, setIsOwnCharacter] = useState(false);
@@ -23,6 +32,7 @@ export default function CharacterDetailPage() {
     // Fetch character
     useEffect(() => {
         async function fetchCharacter() {
+            setLoading(true);
             try {
                 const auth = getAuth();
                 const token = await auth.currentUser.getIdToken();
@@ -34,6 +44,8 @@ export default function CharacterDetailPage() {
                 const data = await res.json();
                 console.log("Chaarcter data: ", data);
                 setCharacter(data);
+                setPreviewCharaIcon(data.iconImg);
+                setPreviewRefImg(data.referenceImg);
                 setIsOwnCharacter(data.owner_uid === user.uid);
                 setFormData(data);
 
@@ -49,6 +61,7 @@ export default function CharacterDetailPage() {
 
                     const ownerData = await ownerRes.json();
                     setCharacterOwner(ownerData);
+                    
                 } catch (error) {
                     console.error("Failed to fetch character owner:", error);
                 }
@@ -61,7 +74,7 @@ export default function CharacterDetailPage() {
         }
 
         fetchCharacter();
-    }, [id]);
+    }, [id, user.uid]);
 
     //Note: These are not in helper functions due to variable definitions and the likes order
     // Handle input changes
@@ -71,98 +84,104 @@ export default function CharacterDetailPage() {
 
     // Save changes
     async function saveChanges() {
-    try {
-        const auth = getAuth();
-        const token = await auth.currentUser.getIdToken();
+        setLoading(true);
+        try {
+            const auth = getAuth();
+            const token = await auth.currentUser.getIdToken();
 
-        // Copy form data
-        const cleanBody = { ...formData };
+            // Copy form data
+            const cleanBody = { ...formData };
 
-        // Upload icon if a new file was selected
-        if (iconFile) {
-            cleanBody.iconImg = await uploadToImgBB(iconFile);
-        }
+            // Upload icon if a new file was selected
+            if (iconFile) {
+                cleanBody.iconImg = await uploadToImgBB(iconFile);
+            }
 
-        // Upload reference image if a new file was selected
-        if (refFile) {
-            cleanBody.referenceImg = await uploadToImgBB(refFile);
-        }
+            // Upload reference image if a new file was selected
+            if (refFile) {
+                cleanBody.referenceImg = await uploadToImgBB(refFile);
+            }
 
-        // Remove MongoDB fields
-        delete cleanBody._id;
-        delete cleanBody.__v;
+            // Remove MongoDB fields
+            delete cleanBody._id;
+            delete cleanBody.__v;
 
-        // Send PATCH request
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(cleanBody)
-        });
+            // Send PATCH request
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/characters/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(cleanBody)
+            });
 
-        if (!res.ok) throw new Error("Failed to save");
+            if (!res.ok) throw new Error("Failed to save");
 
-        toast.success("Character updated!");
-        setCharacter(cleanBody);
-        setIsEditing(false);
+            toast.success("Character updated!");
+            setCharacter(cleanBody);
+            setIsEditing(false);
 
         } catch (err) {
             console.error("Save error:", err);
             toast.error("Failed to update character.");
+        } finally {
+            setLoading(false);
         }
     }
 
 
-    if (loading) return <div className="p-6 text-center">Loading...</div>;
+    if (loading) return <CharacterDetailsLoadingSkeleton />;
     if (!character) return <div className="p-6 text-center">Character not found.</div>;
 
     return (
         <>
-        <div className="grid place-items-center pt-16">
-            <div className="grid sm:grid-cols-1 md:grid-cols-2 bg-base-200 max-w-5xl justify-center items-center p-16">
+        {/* Buttons */}
+        <div className="flex m-auto gap-4 p-1 pt-8">
+            {isOwnCharacter && (
+            <>
+                {!isEditing ? (
+                    <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                        <FaPen />Edit
+                    </button>
+                ) : (
+                    <>
+                        <button className="btn btn-success" onClick={saveChanges}><FaSave />Save</button>
+                        <button
+                            className="btn"
+                            onClick={() => {
+                                setFormData(character);
+                                setIsEditing(false);
+                                setPreviewCharaIcon(character?.iconImg);
+                                setPreviewRefImg(character?.referenceImg);
+                            }}
+                        ><MdOutlineCancel />Cancel</button>
+                    </>
+                )}
+                
+                <button
+                    className="btn btn-error"
+                    onClick={() => deleteCharacterById(id)}
+                ><FaTrash />Delete</button>
+            </>
+            )}
+
+            {character.exportable &&
+            <button
+                className="btn btn-accent"
+                onClick={() => exportCharacter(character)}><TiExport />Export</button>
+            }
+        </div>
+        <div className="grid place-items-center p-4">
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 bg-base-200 w-3xl justify-center items-center p-16">
                 { /* left col */}
-                <div className="flex items-center gap-6">                        
+                <div className="flex flex-col items-center gap-6">                        
                     <div className="avatar">
                         <div className="mask mask-heart w-64">
-                            <img src={character.iconImg} alt={character.name} />
+                            {isEditing ? <img src={previewCharaIcon} /> : <img src={character.iconImg} alt={character.name} />}
                         </div>
                     </div>
-                </div>
-
-                { /* right col */ }
-                <div className="flex flex-col items-center text-center">
-                        <div className="flex flex-col text-center gap-2 p-2">
-                            {!isEditing ? (
-                                <h1 className="text-4xl font-bold">{character.name}</h1>
-                            ) : (
-                                <input name="name" className="input input-bordered w-full" value={formData.name} onChange={handleChange} />
-                            )}
-                            <p className="text-sm opacity-70 hover:cursor-pointer hover:underline" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned by {characterOwner?.user?.username}</p>
-                            <p className="text-sm opacity-70">
-                                Creator Credit: {!isEditing ? character.creator : (
-                                    <input name="creator" className="input input-bordered w-full" value={formData.creator} onChange={handleChange} />
-                                )}
-                            </p>
-                            <button className="btn btn-primary">Reference</button>
-                        </div>
-                    </div>
-                    
-                </div>
-                
-            </div>
-        
-        
-
-            {/* Avatar + Name */}
-            <div className="flex items-center gap-6">
-                <div className="avatar">
-                    <div className="mask mask-heart w-24">
-                        <img src={character.iconImg} alt={character.name} />
-                    </div>
-
-                    {isEditing && (
+                    {isEditing &&
                         <input
                             type="file"
                             accept="image/*"
@@ -171,91 +190,134 @@ export default function CharacterDetailPage() {
                                 const file = e.target.files[0];
                                 if (!file) return;
                                 setIconFile(file);
+                                setPreviewCharaIcon(URL.createObjectURL(file));
                             }}
                         />
-                    )}
+                    }
                 </div>
 
+                { /* right col */ }
+                <div className="flex flex-col text-center m-auto">
+                        <div className="flex flex-col text-center gap-2 p-2">
+                            {!isEditing ? (
+                                <>
+                                    
+                                    <h1 className="text-4xl font-bold">{character.name}</h1>
+                                    <div className="flex flex-wrap gap-1">
+                                        {character.tags?.map(tag => (
+                                            <span key={tag} className="badge badge-outline">{tag}</span>
+                                        ))}
+                                        {isOwnCharacter &&
+                                            <>
+                                            {character.vis === "public" ? 
+                                                <div className="badge badge-soft badge-primary">Public</div> :
+                                                <div className="badge badge-soft badge-secondary">Private</div>
+                                            }
+                                            </>
+                                        }
+                                    </div>
+                                </>
+                            ) : (<>
+                                <input name="name" className="input input-bordered w-full" value={formData.name} onChange={handleChange} />
+                                <input
+                                    name="tags"
+                                    className="input input-bordered w-full"
+                                    value={formData.tags?.join(", ") || ""}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            tags: e.target.value.split(",").map(t => t.trim()).slice(0,3) // allow only 3 tags
+                                        })
+                                    }
+                                    
+                                />
+                                <p className="text-xs opacity-50">Max 3 tags ({formData.tags?.length || 0}/3)</p>
+                            </>)}
+                            <p className="text-sm opacity-70 hover:cursor-pointer hover:underline" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned by {characterOwner?.user?.username}</p>
+                            <p className="text-sm opacity-70">
+                                Creator Credit: {!isEditing ? character.creator : (
+                                    <input name="creator" className="input input-bordered w-full" value={formData.creator} onChange={handleChange} />
+                            )}
+                            </p>
+                        </div>
+                        
+                    </div>
 
-                <div>
-                    {!isEditing ? (
-                        <h1 className="text-4xl font-bold">{character.name}</h1>
-                    ) : (
-                        <input
-                            name="name"
-                            className="input input-bordered w-full"
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                    )}
-
-                    <p className="text-sm opacity-70">
-                        Created by: {!isEditing ? (
-                            character.creator
-                        ) : (
-                            <input
-                                name="creator"
-                                className="input input-bordered w-full"
-                                value={formData.creator}
+                    {/* span both columns for bio/other info (when editing.) */ }
+                    <div className="col-span-2 w-full">
+                        <div className="flex flex-col justify-center items-center gap-2 p-2">
+                        <h1 className="text-3xl">Character Bio</h1>
+                        {!isEditing ? (<>
+                            <div className="h-12 overflow-y-auto resize bg-base-100 p-2">
+                                {character.bio}
+                            </div>
+                        </>) : (<>
+                            <textarea
+                                name="bio"
+                                className="textarea textarea-bordered w-full"
+                                value={formData.bio}
                                 onChange={handleChange}
                             />
-                        )}
-                    </p>
-                </div>
-            </div>
+                            <h1>Edit Other Details</h1>
+                            <select
+                                name="vis"
+                                className="select select-bordered w-full mb-2"
+                                value={formData.vis}
+                                onChange={(e) =>
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        vis: e.target.value   // "public" or "private"
+                                    }))
+                                }
+                            >
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                            </select>
 
-            {/* Bio */}
-            <div className="card bg-base-200 p-4">
-                <h2 className="text-xl font-semibold mb-2">Bio</h2>
 
-                {!isEditing ? (
-                    <p>{character.bio}</p>
-                ) : (
-                    <textarea
-                        name="bio"
-                        className="textarea textarea-bordered w-full"
-                        value={formData.bio}
-                        onChange={handleChange}
-                    />
-                )}
-            </div>
-
-            {/* Tags */}
-            <div className="card bg-base-200 p-4">
-                <h2 className="text-xl font-semibold mb-2">Tags</h2>
-
-                {!isEditing ? (
-                    <div className="flex flex-wrap gap-2">
-                        {character.tags?.map(tag => (
-                            <span key={tag} className="badge badge-outline">{tag}</span>
-                        ))}
+                            <select
+                                name="exportable"
+                                className="select select-bordered w-full mb-2"
+                                value={formData.exportable}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        exportable: e.target.value === "true"
+                                    })
+                                }
+                            >
+                                <option value="true">Exportable</option>
+                                <option value="false">Not Exportable</option>
+                            </select>
+                            
+                            <fieldset className="fieldset w-full mb-2">
+                                <legend className="fieldset-legend">External Link</legend>
+                                <input
+                                    name="link"
+                                    className="input input-bordered w-full"
+                                    value={formData.link}
+                                    onChange={handleChange}
+                                />
+                            </fieldset>
+                        </>)}
+                        
+                        </div>
                     </div>
-                ) : (
-                    <input
-                        name="tags"
-                        className="input input-bordered w-full"
-                        value={formData.tags?.join(", ") || ""}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                tags: e.target.value.split(",").map(t => t.trim())
-                            })
-                        }
-                    />
-                )}
+                </div>
             </div>
 
             {/* Reference Image */}
-            <div className="card bg-base-200 p-4">
-                <h2 className="text-xl font-semibold mb-2">Reference Image</h2>
+            <div className="flex flex-col w-3xl m-auto text-center justify-center bg-base-200 p-8 gap-4">
+                <h1 className="text-3xl font-semibold mb-2">Reference Image</h1>
 
                 {!isEditing ? (
                     <img
                         src={character.referenceImg}
                         alt="Reference"
-                        className="rounded-lg max-h-96 w-40 object-cover"
+                        className="rounded-lg max-w-full h-auto"
                     />
-                ) : (
+                ) : (<>
+                    <img src={previewRefImg} className="rounded-lg max-w-full h-auto" />
                     <input
                         type="file"
                         accept="image/*"
@@ -264,109 +326,12 @@ export default function CharacterDetailPage() {
                             const file = e.target.files[0];
                             if (!file) return;
                             setRefFile(file);
+                            setPreviewRefImg(URL.createObjectURL(file));
                         }}
                     />
 
-                )}
+                </>)}
             </div>
-
-            {/* Details */}
-            <div className="card bg-base-200 p-4">
-                <h2 className="text-xl font-semibold mb-2">Details</h2>
-
-                {!isEditing ? (
-                    <>
-                        <p><strong>Visibility:</strong> {character.vis}</p>
-                        <p><strong>Exportable:</strong> {character.exportable ? "Yes" : "No"}</p>
-                        <p><strong>Link:</strong> {character.link}</p>
-                    </>
-                ) : (
-                    <>
-                       <select
-                            name="vis"
-                            className="select select-bordered w-full mb-2"
-                            value={formData.vis}
-                            onChange={(e) =>
-                                setFormData(prev => ({
-                                    ...prev,
-                                    vis: e.target.value   // "public" or "private"
-                                }))
-                            }
-                        >
-                            <option value="public">Public</option>
-                            <option value="private">Private</option>
-                        </select>
-
-
-                        <select
-                            name="exportable"
-                            className="select select-bordered w-full mb-2"
-                            value={formData.exportable}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    exportable: e.target.value === "true"
-                                })
-                            }
-                        >
-                            <option value="true">Exportable</option>
-                            <option value="false">Not Exportable</option>
-                        </select>
-
-                        <input
-                            name="link"
-                            className="input input-bordered w-full"
-                            value={formData.link}
-                            onChange={handleChange}
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-4">
-                {isOwnCharacter && (
-                    <>
-                {!isEditing ? (
-                    <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
-                        Edit
-                    </button>
-                ) : (
-                    <>
-                        <button className="btn btn-success" onClick={saveChanges}>
-                            Save
-                        </button>
-                        <button
-                            className="btn"
-                            onClick={() => {
-                                setFormData(character);
-                                setIsEditing(false);
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </>
-                )}
-                
-                
-
-                <button
-                    className="btn btn-error"
-                    onClick={() => deleteCharacterById(id)}
-                >
-                    Delete
-                </button>
-                </>
-                )}
-
-                <button
-                    className="btn btn-accent"
-                    onClick={() => exportCharacter(character)}
-                >
-                    Export
-                </button>
-            </div>
-        
         </>
     )
 }
@@ -430,7 +395,7 @@ async function deleteCharacterById(characterId) {
         if (!res.ok) throw new Error("Delete failed");
 
         toast.success("Character deleted!");
-        window.location.href = "/characters";
+        window.location.href = "/explore";
     } catch (err) {
         console.error("Delete error:", err);
         toast.error("Failed to delete character.");
