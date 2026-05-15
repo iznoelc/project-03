@@ -18,25 +18,20 @@ export default function FavoriteCharacterDashboard(){
     }, [user, dbUser]);
     */
     
+
     useEffect(() => {
-        if (!dbUser) return;
+        if (!user || !dbUser) return;
+        fetchData(user);
+    }, [user, dbUser]);
 
-        const filtered = (dbUser.favChars || []).filter(
-            c => c.vis === "public"
-        );
 
-        setCharacters(filtered);
-        setLoading(false);
-
-    }, [dbUser]);
-
-    /*
+    
     async function fetchData(user) {
         try {
             const token = await user.getIdToken();
 
             // Fetch all favorites in parallel
-            const requests = dbUser.favChars.map((d) =>
+            const requests = (dbUser.user?.favChars || []).map((d) =>
                 fetch(`${import.meta.env.VITE_API_URL}/characters/${d._id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -66,7 +61,7 @@ export default function FavoriteCharacterDashboard(){
         }
     }
 
-    */
+    
 
     if (loading) {
         return (
