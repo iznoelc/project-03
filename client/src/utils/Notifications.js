@@ -27,7 +27,7 @@ export const postNotification = async (sender, receiver, type, body, token) => {
         console.log("NOTIFICATION POSTED SUCCESSFULLY");
 
     } catch (error){
-        console.error("[ERROR CREATING USER IN THE DATABASE, DELETING THEM FROM FIREBASE]: ", error);
+        console.error("[ERROR CREATING NOTIFICATION IN DATABASE]: ", error);
     }
 }
 
@@ -35,8 +35,27 @@ export function markAsRead(){
     console.log("[MARKING NOTIFICATION AS READ]");
 }
 
-export function getAllNotifications(){
+// get all notifications for a user
+export const getAllNotifications = async (uid, token) => {
     console.log("[GETTING ALL NOTIFICATIONS]");
+    try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/notifications/${uid}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!res.ok){
+            throw new Error(`[ERROR GETTING NOTIFICATIONS FOR USER WITH UID ${uid}] Status: ${res.status}`);
+        }
+        console.log("NOTIFICATION'S RETRIEVED SUCCESSFULLY");
+
+        const data = await res.json();
+        return data;
+    } catch (error){
+        console.error("[NOTIFICATION GET ERROR]: ", error);
+    }
 }
 
 export function getAllUnreadNotifications(){

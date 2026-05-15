@@ -9,11 +9,11 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { postNotification } = require("../controllers/notification.controller");
+const { postNotification, getNotificationsForAUser } = require("../controllers/notification.controller");
 
 // post a new notification to the database
 router.post("/", verifyFirebaseToken, postNotification);
 
-
+router.get("/:uid", verifyFirebaseToken, getNotificationsForAUser);
 
 module.exports = router;

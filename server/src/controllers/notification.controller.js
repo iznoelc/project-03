@@ -8,6 +8,7 @@
 const Notification = require("../models/notification.model");
 // const { validateUser, validateEditedProfile } = require("../validators/user.validator");
 const admin = require("firebase-admin");
+const pusher = require("../config/pusher");
 
 // POST a new notification to the database
 async function postNotification(req, res) {
@@ -29,6 +30,9 @@ async function postNotification(req, res) {
         });
         await notif.save();
 
+        // use Pusher to send a message to Pusher's servers so that any clients subscribed receieve the trigger
+        await pusher.trigger(`user-${notif.receiver}`, 'new-notification', notif.toObject());
+
         res.status(201).json({ message: "[NOTIFICATION CREATED SUCCESSFULLY]", notif });
     } catch (err) {
         console.error(err);
@@ -36,4 +40,21 @@ async function postNotification(req, res) {
     } 
 };
 
-module.exports = { postNotification };
+// get all of the notifications for the current user
+async function getNotificationsForAUser(req, res) {
+    try {
+        const { uid } = req.user.uid;
+
+        const notifications = await Notification.find({uid})
+        .sort({createdAt: -1})
+        .limit(50) // only show 20 newest
+
+        res.json(notifications);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "[SERVER ERROR WHEN ATTEMPTING TO FETCH ALL NOTIFICATIONS FOR A SPECIFIC USER]" });
+    }
+}
+
+module.exports = { postNotification, getNotificationsForAUser };

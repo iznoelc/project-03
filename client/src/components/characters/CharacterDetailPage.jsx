@@ -204,7 +204,7 @@ export default function CharacterDetailPage() {
                                 <>
                                     
                                     <h1 className="text-4xl font-bold">{character.name}</h1>
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-wrap gap-1 m-auto">
                                         {character.tags?.map(tag => (
                                             <span key={tag} className="badge badge-outline">{tag}</span>
                                         ))}
