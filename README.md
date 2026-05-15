@@ -22,7 +22,11 @@ A full stack character managing website. Users can upload, edit, and delete thei
     - UML
 
 - Esperanza Paulino
-    - Task
+    - Admin Dashboard
+    - Creator Dashboard
+    - Color Pallette API
+    - Character Details Page
+    - Mock Character Data
 
 
 We communicated via Discord and managed a Google Document with weekly tasks and overall project goals.
