@@ -36,6 +36,7 @@ export default function CharacterDetailPage() {
     const [characterOwner, setCharacterOwner] = useState(null);
     
     const [isOwnCharacter, setIsOwnCharacter] = useState(false);
+    const [creatorChecked, setCreatorChecked] = useState(false);
 
     // Fetch character
     useEffect(() => {
@@ -242,12 +243,51 @@ export default function CharacterDetailPage() {
                                 />
                                 <p className="text-xs opacity-50">Max 3 tags ({formData.tags?.length || 0}/3)</p>
                             </>)}
-                            <p className="text-sm opacity-70 hover:cursor-pointer hover:underline" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned by {characterOwner?.user?.username}</p>
-                            <p className="text-sm opacity-70">
-                                Creator Credit: {!isEditing ? character.creator : (
-                                    <input name="creator" className="input input-bordered w-full" value={formData.creator} onChange={handleChange} />
+                            {!isEditing && (
+                                <>
+                                {character.userIsCreator ?
+                                <p className="text-xs text-opacity-50 hover:underline hover:cursor-pointer" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned and Created by {characterOwner.user?.username}</p> :
+                                <div className="flex flex-col">
+                                    <p className="text-xs text-opacity-50 hover:underline hover:cursor-pointer" onClick={() => navigate(`/profile/${characterOwner?.user?.uid}`, { replace : true })}>Owned by {characterOwner.user?.username}</p>
+                                    <p className="text-xs text-opacity-50">Created by {character.creator}</p>
+                                </div>
+                                }
+                                </>
                             )}
-                            </p>
+                            {isEditing &&
+                            <fieldset className="fieldset">
+                                <legend className="fieldset-legend">Change Creator</legend>
+                                
+
+                                <label className="flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        className="checkbox"
+                                        checked={formData.userIsCreator}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setCreatorChecked(checked);
+                                            setFormData({
+                                                ...formData,
+                                                userIsCreator: checked
+                                            })
+                                        }}
+                                    />
+                                    I am the creator
+                                </label>
+
+                                {!formData.userIsCreator && (
+                                    <input
+                                    type="text"
+                                    className="input w-full"
+                                    name="creator"
+                                    value={formData.creator}
+                                    onChange={handleChange}
+                                    placeholder="Credit whoever designed your character!"
+                                />
+                                )}
+                                </fieldset>
+                            }
                         </div>
                         
                     </div>

@@ -39,6 +39,9 @@ const characterSchema = new mongoose.Schema({
     },
     tags: {
         type: [String], default: []
+    },
+    userIsCreator: {
+        type: Boolean, default: false, required: true
     }
 }, { 
     timestamps: true

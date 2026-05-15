@@ -29,7 +29,8 @@ export default function CreateCharacter(){
         exportable: false,
         link: "",
         referenceImg: "",
-        tags: []
+        tags: [],
+        userIsCreator: false,
     });
 
     //Handles all edits to the form data
@@ -139,7 +140,8 @@ export default function CreateCharacter(){
             exportable: false,
             link: "",
             referenceImg: "",
-            tags: []
+            tags: [],
+            userIsCreator: false,
         });
     };
     
@@ -191,6 +193,7 @@ export default function CreateCharacter(){
                         setFormData({
                             ...formData,
                             creator: checked ? dbUser?.user?.username : "",
+                            userIsCreator: checked,
                         });
                     }}
                 />

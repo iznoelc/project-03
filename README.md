@@ -22,6 +22,8 @@ A full stack character managing website. User's can upload and edit their own ch
 - OUR PRODUCT is an innovative and simple way of managing your characters.
 
 ## TECH STACK
+- Frontend
+- Backend
 
 ## USER ROLES
 
@@ -32,6 +34,15 @@ A full stack character managing website. User's can upload and edit their own ch
 ## ROUTES
 
 ## PAGES 
+
+## KEY DESIGN DECISIONS
+### Stack
+**We chose to use the full MERN stack (MongoDB, Express, React, Node.js) with Firebase auth and Pusher for real time notifications.**
+- We opted **Pusher** over Server Sent Events (SSE) as a quicker development decision, since this project had a 3-week time constraint. Additionally, **Pusher** was chosen over WebSockets because live updates were only needed for notifications, which is a 1-way connection. We made this decision understanding that in the future, extra implementation may be needed in the future in the event this product expands. 
+
+### Database Schema
+
+### UI Design
 
 
 ## ASSETS

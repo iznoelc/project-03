@@ -49,7 +49,8 @@ async function createCharacter(req, res) {
             exportable,
             link,
             referenceImg,
-            tags
+            tags,
+            userIsCreator
         } = req.body;
 
         // Required field validation
@@ -67,7 +68,8 @@ async function createCharacter(req, res) {
             exportable,
             link,
             referenceImg,
-            tags
+            tags,
+            userIsCreator
         });
 
         await character.save();
