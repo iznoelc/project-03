@@ -55,7 +55,6 @@ export default function AdminDashboard() {
                     <div className="max-w-2xl">
                         <h1 className="text-5xl">ADMIN DASHBOARD</h1>
                         <p>
-                            //change this discribption to new uses
                             Dear {user?.displayName || "admin"}, welcome to the admin dashboard.
                             Here you can view site statistics, search users, delete users,
                             and approve new admins.
@@ -88,7 +87,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setUserQuery(e.target.value)}
                     />
 
-                    {activeUsers.map((u) => ( //add filter here to not include disabled users
+                    {activeUsers.map((u) => ( 
                         <div
                             key={u.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
@@ -124,7 +123,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setActionQuery(e.target.value)}
                     />
 
-                    {disabledUsers.map((u) => ( //change this to be disabled users not admin
+                    {disabledUsers.map((u) => ( 
                         <div
                             key={u.uid}
                             className="card bg-base-100 shadow-xl p-6 w-full max-w-3xl mx-auto my-3"
@@ -173,7 +172,6 @@ async function fetchUsers(setUsersList, user) {
     }
 }
 
-//change this to enable
 async function Enable(user, userId, setUsersList) {
     try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
@@ -200,7 +198,6 @@ async function Enable(user, userId, setUsersList) {
     }
 }
 
-//MAKE THIS WORK< THINK I COPIED FROM OLD PROJECT WRONG
 async function Delete(user, userId, setUsersList) {
     const confirmed = await confirmToast("Delete this user?");
     if (!confirmed) return;
