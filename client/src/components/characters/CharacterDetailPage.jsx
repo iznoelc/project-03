@@ -20,7 +20,7 @@ import CharacterDetailsLoadingSkeleton from "./CharacterDetailsLoadingSkeleton";
  */
 
 export default function CharacterDetailPage() {
-    const { user } = useAuth();
+    const { user, role } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [character, setCharacter] = useState(null);
@@ -166,13 +166,14 @@ export default function CharacterDetailPage() {
                         ><MdOutlineCancel />Cancel</button>
                     </>
                 )}
-                
+                </>)}
+        
+            {(isOwnCharacter || role === "admin") && (<>   
                 <button
                     className="btn btn-error"
                     onClick={() => deleteCharacterById(id)}
                 ><FaTrash />Delete</button>
-            </>
-            )}
+            </>)}
 
             {character.exportable &&
             <button

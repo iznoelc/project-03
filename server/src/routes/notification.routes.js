@@ -14,4 +14,6 @@ const { postNotification } = require("../controllers/notification.controller");
 // post a new notification to the database
 router.post("/", verifyFirebaseToken, postNotification);
 
+
+
 module.exports = router;

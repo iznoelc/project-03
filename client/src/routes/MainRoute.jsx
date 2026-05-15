@@ -37,7 +37,9 @@ const MainRouter = [
       },
         { path: "explore",
           element: (
-            <Explore />
+            <PrivateRoute allowedRoles={["creator", "admin"]}>
+              <Explore />
+            </PrivateRoute>
           )
         },
 
@@ -144,6 +146,7 @@ const MainRouter = [
         }
     ],
   },
+  {Boundary: ErrorBoundary},
   { path: "*", Component: ErrorPage }, {path: "/error", Component: ErrorPage}
 ];
 
