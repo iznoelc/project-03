@@ -43,9 +43,9 @@ async function postNotification(req, res) {
 // get all of the notifications for the current user
 async function getNotificationsForAUser(req, res) {
     try {
-        const { uid } = req.user.uid;
+        const { uid } = req.user;
 
-        const notifications = await Notification.find({uid})
+        const notifications = await Notification.find({receiver: uid})
         .sort({createdAt: -1})
         .limit(50) // only show 20 newest
 

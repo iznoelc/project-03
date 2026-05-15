@@ -16,14 +16,6 @@ const uri = process.env.MONGO_URI;
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-
-    const result = await mongoose.connection.collection("characters").updateMany(
-    {},
-    {
-      $unset: { isOwnCharacter: "" },   // remove old field
-      $set: { userIsCreator: false }     // add new field
-    }
-  );
     
     console.log("MongoDB connected with Mongoose");
 

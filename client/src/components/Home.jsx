@@ -1,4 +1,5 @@
 import galaxyTexture from "../assets/galaxy_texture.jpg";
+import BlueGalaxyTexture from "../assets/blue_galaxy_texture.jpg"
 import HomeDisplay from "./HomeDisplay";
 import { Link } from "react-router-dom";
 
@@ -35,36 +36,36 @@ export default function Home() {
       <div className="hero-overlay"></div>
 
       <div className="hero-content text-neutral-content text-center">
-        <div className="max-w-md">
+        <div className="max-w-6xl">
 
           <h1
             className="
-              mb-5 text-5xl font-bold
+              mb-5 text-8xl font-bold
               bg-no-repeat
               bg-clip-text text-transparent
               bg-[length:200%_200%]
               drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]
             "
             style={{
-              backgroundImage: `url(${galaxyTexture})`,
+              backgroundImage: `url(${BlueGalaxyTexture})`,
               animation: "background-pan 60s linear infinite",
               WebkitTextStroke: "1.0px white",
             }}
           >
-            Constellations
+            CONSTELLATION
           </h1>
 
           <p className="
-              mb-5 text-1xl font-bold
+              mb-5 text-2xl
              
             "
             style={{
               
               WebkitTextStroke: "0.25px white",
             }}>
-            Welcome to Constellations, we seek to allow people to share characters they have created,
-            while also allowing users to explore others characters and find inspiration
-            from the many characters and tools we host
+            Welcome to CONSTELLATION, the character managing website! We provide a place to keep track of your characters.
+            Upload, edit, and manage your own characters! Favorite other user's characters! Generate a color palette for inspiration!
+            We provide multiple services to aid in your character managing and developing experience. Get started today.
           </p>
 
           <Link to={`/explore`} className="btn btn-primary">Explore</Link>
@@ -74,7 +75,7 @@ export default function Home() {
       </div>
       
     </div>
-    <HomeDisplay></HomeDisplay>
+    {/* <HomeDisplay></HomeDisplay> */}
 
             
     </div>
