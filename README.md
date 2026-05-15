@@ -15,7 +15,12 @@ A full stack character managing website. Users can upload, edit, and delete thei
     - Debugging
     - Deploy
 - Landon Chapin
-    - Task
+    - Search (Explore)
+    - Character creation page
+    - Favorites Page (Favorites Dashboard)
+    - Home Page
+    - UML
+
 - Esperanza Paulino
     - Task
 
