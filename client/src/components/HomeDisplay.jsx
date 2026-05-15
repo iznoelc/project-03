@@ -21,11 +21,11 @@ export default function HomeDisplay(){
 
     /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
     useEffect(() => {
-        if (!user) return;
         fetchData()
     }, [user]);
 
     async function fetchData() {
+        setLoading(true);
         try {
             //const token = await user.getIdToken();
 
@@ -53,13 +53,6 @@ export default function HomeDisplay(){
       }
 
     }
-
-    // check if movie is in favorites list by checking if the title of the movie is in the favorites list. return true if it is, false if it isnt.
-    const isFavorite = (charId) => {
-        return (favChars || []).some(fav =>
-            normalizeId(fav) === charId.toString()
-        );
-    };
 
     // Function to fetch the user names
     async function fetchCharacterCreators(user) {
