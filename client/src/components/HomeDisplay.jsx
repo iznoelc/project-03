@@ -22,35 +22,29 @@ export default function HomeDisplay(){
     /* use useEffect here to get the data once its loaded from the loader, since it will take some time. */
     useEffect(() => {
         if (!user) return;
-        fetchData(user)
+        fetchData()
     }, [user]);
 
-    async function fetchData( user) {
+    async function fetchData() {
         try {
-            const token = await user.getIdToken();
+            //const token = await user.getIdToken();
 
             const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/characters`,
-            {
-                headers: {
-                Authorization: `Bearer ${token}`,
-                },
+            `${import.meta.env.VITE_API_URL}/characters/get-latest`);
+        
+            if (!res.ok) {
+                throw new Error(`Failed to fetch characters, Status: ${res.status}`);
             }
-        );
-        
-        if (!res.ok) {
-          throw new Error("Failed to fetch characters");
-        }
 
-        const data = await res.json();
-        console.log("Fetched characters:", data);
+            const data = await res.json();
+            console.log("Fetched characters:", data);
 
-        
-        let filtered = data.filter(d => d.vis === "public");
-        let sorted = DataSorter("date", false, filtered);
-        let limited = sorted.slice(0, 9);
+            
+            let filtered = data.filter(d => d.vis === "public");
+            let sorted = DataSorter("date", false, filtered);
+            let limited = sorted.slice(0, 10);
 
-        setCharacters(limited);
+            setCharacters(limited);
 
       } catch (err) {
         console.error(err);
@@ -131,20 +125,19 @@ export default function HomeDisplay(){
 
     return(
         <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 " > 
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4" > 
 
-        {characters.map((d, index) => (
+        {characters.map((d) => (
                 
                 <div key={d._id} className="relative card  bg-base-100 card-xs shadow-sm">
  
   
                     {/* content */}
-                    
                     <div className="block">
-                    <div className="card bg-base-100  shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
+                    <div className="card bg-base-100 shadow-sm hover:shadow-md transition hover:scale-[1.02] cursor-pointer">
 
                     <div className="card-body">
-                        <div className="grid grid-cols-2 gap-2  p-8 grid-col-grow">
+                        <div className="grid grid-cols-2 gap-2 p-8 grid-col-grow">
                             {d.iconImg ? (
                             <img
                                 src={d.iconImg}
@@ -157,61 +150,32 @@ export default function HomeDisplay(){
                             </div>
                             )}
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col flex-wrap gap-2">
                                 {/* put the title and description of the movie in the cards */}
-                                <Link to={`/character/${d._id}`}  className="no-underline">
-                                <h2 className="card-title primary-font  text-2xl hover:underline">
+                                <h2 className="card-title primary-font text-2xl">
                                     {d.name}
                                 </h2>
                                 <h3 className="text-lg">
-                                {users[d.owner_uid]?.user?.displayName || "Unknown User"}
+                                {d.owner_uid !== null ? `@${users[d.owner_uid]?.user?.username}` : "Unknown User"}
                                 </h3>
-                                </Link>
                                 
                                 
-                            </div>
-                            <div className="justify-middle card-actions">
-                                <ul list>
-                                    
-                                    <div className="flex flex-row gap-2">
-                                        <div className="flex gap-2">
-                                            {d.tags.map((tag, i) => (
-                                            <span
-                                                key={i}
-                                                className="badge badge-outline badge-primary"
-                                            >
-                                                {tag}
-                                            </span>
-                                            ))}
-                                        </div>
-
-                                    </div>
-                                    <div>
-                                        
-                                    {d.owner_uid !== user.uid && (
-                                        <button
-                                            className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
-                                            ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}
-                                            onClick={
-                                            isFavorite(d._id)
-                                                ? () => removeFromFav(d.name, d._id)
-                                                : () => addToFav(d.name, d)
-                                            }
-                                        >
-                                            {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
-                                        </button>
-                                    )}
-                                                                                
-                                        
-                                    </div>   
-                                </ul>
                             </div>
                         </div>
                     </div>
 
                     </div>
                     </div>                    
-                    
+                    <div className="flex flex-row gap-2 flex-wrap col-span-2 w-full p-4 justify-center">
+                        {d.tags.map((tag, i) => (
+                        <span
+                            key={i}
+                            className="badge badge-outline badge-primary"
+                        >
+                            {tag}
+                        </span>
+                        ))}
+                    </div>
                 </div>
             ))}
             </div>

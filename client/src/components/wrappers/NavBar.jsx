@@ -18,9 +18,9 @@ export default function NavBar(){
             <h1 className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</h1>
         </div>
         <div className="navbar-center">
-            <ul className="menu px-1">
+            {/* <ul className="menu px-1">
                 <button className="btn btn-ghost" onClick={() => navigate("/explore")}><FaSearch /></button>
-            </ul>
+            </ul> */}
         </div>
         <div className="navbar-end">
             <div className="dropdown dropdown-end">

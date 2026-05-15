@@ -9,7 +9,10 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { updateCharacter, createCharacter, getAllCharacters, deleteCharacter, getCharacterByID } = require("../controllers/character.controller");
+const { updateCharacter, createCharacter, getAllCharacters, deleteCharacter, getCharacterByID, getLatestCharacters } = require("../controllers/character.controller");
+
+// get the 10 latest characters
+router.get("/get-latest", getLatestCharacters);
 
 //used for the editing portion of teh details page
 router.patch("/:id", verifyFirebaseToken, updateCharacter);
@@ -25,8 +28,6 @@ router.get("/", verifyFirebaseToken, getAllCharacters);
 
 // delete character by MongoDB _id
 router.delete("/:id", verifyFirebaseToken, deleteCharacter);
-
-
 
 
 module.exports = router;

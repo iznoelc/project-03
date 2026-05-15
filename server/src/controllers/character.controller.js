@@ -128,4 +128,19 @@ async function getCharacterByID(req, res) {
     }
 }
 
-module.exports = {updateCharacter, createCharacter,getAllCharacters,deleteCharacter, getCharacterByID};
+// GET the 10 latest characters
+async function getLatestCharacters(req, res){
+    try {
+        const characters = await Character.find()
+        .sort({createdAt: -1})
+        .limit(10) // only show 20 newest
+
+        res.json(characters);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "[SERVER ERROR WHEN ATTEMPTING TO FETCH LATEST CHARACTERS]" });
+    }
+}
+
+module.exports = { updateCharacter, createCharacter,getAllCharacters,deleteCharacter, getCharacterByID, getLatestCharacters };

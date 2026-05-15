@@ -9,8 +9,8 @@ export default function Home() {
   const navigate = useNavigate();
 
 
-  return (
-    <div className="relative">
+  return (<>
+    <div className="relative mask-[linear-gradient(to_bottom,black_80%,transparent)]">
 
         {/* LOCAL KEYFRAMES */}
       <style>
@@ -38,7 +38,7 @@ export default function Home() {
     >
       <div className="hero-overlay"></div>
 
-      <div className="hero-content text-neutral-content text-center">
+      <div className="hero-content text-neutral-content text-center ">
         <div className="max-w-6xl">
           <h1
             className="
@@ -70,15 +70,16 @@ export default function Home() {
             We provide multiple services to aid in your character managing and developing experience.
           </p>
 
-          <button className="btn btn-accent" onClick={() => navigate("/", {replace:true})}>Get Started Today</button>
+          <button className="btn btn-primary hover:scale-105 hover:transition btn-xl sekuya-regular" onClick={() => navigate("/", {replace:true})}>Get Started Today</button>
           
         </div>
       </div>
-      
     </div>
-    {/* <HomeDisplay></HomeDisplay> */}
-
-            
     </div>
+    <div className="p-8">
+      <h1 className="text-center text-4xl">PREVIEW THE LATEST CHARACTERS ON CONSTELLATION</h1>
+      <HomeDisplay />
+    </div>
+    </>
   );
 }

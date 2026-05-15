@@ -7,7 +7,7 @@ export default function Notifications(){
     const { notifications } = useNotifications(user);
 
     return (
-        <div className="dropdown dropdown-end drop-shadow-2xl">
+        <div className="dropdown dropdown-end drop-shadow-2xl z-50">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle pr-1">
             <div className="indicator">
             <FaBell className="text-xl"/>
