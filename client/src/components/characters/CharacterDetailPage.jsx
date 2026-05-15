@@ -11,6 +11,14 @@ import useAuth from "../../hooks/useAuth";
 
 import CharacterDetailsLoadingSkeleton from "./CharacterDetailsLoadingSkeleton";
 
+/**
+ * DetailsPage.jsx
+ * 
+ * Character details fetched for the users to view in a nicer format. Also gives the user the ability to edit, export, or delete said character.
+ * 
+ * @author Esperanza Paulino
+ */
+
 export default function CharacterDetailPage() {
     const { user } = useAuth();
     const { id } = useParams();

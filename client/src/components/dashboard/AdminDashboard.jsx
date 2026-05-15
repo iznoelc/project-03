@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
 
+/**
+ * AdminDashboard.jsx
+ * 
+ * Dashboard for all admin users, contains website stats, users to disable, enable, and delete.
+ * 
+ * @author Esperanza Paulino
+ */
+
 export default function AdminDashboard() {
     const { user } = useAuth();
 

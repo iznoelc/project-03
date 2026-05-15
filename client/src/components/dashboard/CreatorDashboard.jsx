@@ -5,6 +5,14 @@ import useAuth from "../../hooks/useAuth";
 //API DOCUMENTATION
 //http://colormind.io/api-access/
 
+/**
+ * CreatorDashboard.jsx
+ * 
+ * Dashboard for users, contains your characters with more details view option and a pallette picker for inspiration.
+ * 
+ * @author Esperanza Paulino
+ */
+
 export default function CreatorDashboard() {
     const navigate = useNavigate();
     const { user } = useAuth();
