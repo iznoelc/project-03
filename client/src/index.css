@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@100..900&family=Sekuya&display=swap');
 @import "tailwindcss";
 
 @plugin "daisyui/index.js" {
@@ -40,4 +41,31 @@
   --noise: 0;
 }
 
+.sekuya-regular {
+  font-family: "Sekuya", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.commissioner-regular {
+  font-family: "Commissioner", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "FLAR" 0,
+    "VOLM" 0;
+}
+
+body {
+  font-family: "Commissioner", sans-serif;
+}
+
+h1 {
+  font-family: "Sekuya", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
 

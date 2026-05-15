@@ -15,7 +15,7 @@ export default function NavBar(){
     if (!loggedIn || extraDataLoading) return (
         <div className="navbar bg-base-200 shadow-sm">
         <div className="navbar-start">
-            <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
+            <h1 className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</h1>
         </div>
         <div className="navbar-center">
             <ul className="menu px-1">
@@ -37,7 +37,7 @@ export default function NavBar(){
     if (loggedIn) return (
         <div className="navbar bg-base-200 shadow-sm">
         <div className="navbar-start">
-            <a className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</a>
+            <h1 className="btn btn-ghost text-xl" onClick={() => navigate("/", { replace: true })}><GiFallingStar />constellation</h1>
         </div>
         <div className="navbar-center">
             <ul className="menu sm:menu-vertical lg:menu-horizontal px-1">

@@ -1,20 +1,16 @@
 import galaxyTexture from "../assets/galaxy_texture.jpg";
 import BlueGalaxyTexture from "../assets/blue_galaxy_texture.jpg"
 import HomeDisplay from "./HomeDisplay";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 export default function Home() {
 
-    
+  const navigate = useNavigate();
 
 
   return (
-    <div
-    style={{
-        backgroundImage:
-          "url(https://www.maps.com/app/uploads/2025/08/article-stars-northern-sky-featured.webp)",
-      }}>
+    <div className="relative">
 
         {/* LOCAL KEYFRAMES */}
       <style>
@@ -27,7 +23,14 @@ export default function Home() {
         `}
       </style>
     
-    
+    {/* blurred background layer */}
+      <div
+        className="absolute inset-0 bg-cover bg-center blur-xs -z-10"
+        style={{
+          backgroundImage:
+            "url(https://www.maps.com/app/uploads/2025/08/article-stars-northern-sky-featured.webp)",
+        }}
+      />
 
     <div
       className="hero min-h-screen"
@@ -37,7 +40,6 @@ export default function Home() {
 
       <div className="hero-content text-neutral-content text-center">
         <div className="max-w-6xl">
-
           <h1
             className="
               mb-5 text-8xl font-bold
@@ -61,17 +63,16 @@ export default function Home() {
             "
             style={{
               
-              WebkitTextStroke: "0.25px white",
+              WebkitTextStroke: "0.25px black",
             }}>
             Welcome to CONSTELLATION, the character managing website! We provide a place to keep track of your characters.
             Upload, edit, and manage your own characters! Favorite other user's characters! Generate a color palette for inspiration!
-            We provide multiple services to aid in your character managing and developing experience. Get started today.
+            We provide multiple services to aid in your character managing and developing experience.
           </p>
 
-          <Link to={`/explore`} className="btn btn-primary">Explore</Link>
+          <button className="btn btn-accent" onClick={() => navigate("/", {replace:true})}>Get Started Today</button>
           
         </div>
-        
       </div>
       
     </div>
