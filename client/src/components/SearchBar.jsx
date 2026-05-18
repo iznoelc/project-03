@@ -21,7 +21,7 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 export default function SearchBar({ data: initialData }){
 
 
-    const { dbUser, user, favChars} = useAuth(); 
+    const { dbUser, user, favChars, role } = useAuth(); 
 
     // User array for display of creator display names
     const [users, setUsers] = useState({});
@@ -251,7 +251,7 @@ export default function SearchBar({ data: initialData }){
 
                                     </div>
                                     <div>
-                                        {(d.owner_uid !== user.uid && dbUser?.accountStatus !== "disabled") && (
+                                        {(d.owner_uid !== user.uid && dbUser?.accountStatus !== "disabled" && role !== "admin") && (
                                             <button
                                                 className={`text-xl transform transition-transform duration-75 hover:scale-125 hover:cursor-pointer
                                                 ${isFavorite(d._id) ? "text-primary hover:text-error" : "hover:text-success"} z-30`}

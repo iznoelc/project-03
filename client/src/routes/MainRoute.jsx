@@ -143,6 +143,13 @@ const MainRouter = [
               <TempNotificationsTest />
             </PrivateRoute>
           )
+        },
+
+        {
+          path: "/fallback-test",
+          element: (
+            <FallbackElement />
+          )
         }
     ],
   },

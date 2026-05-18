@@ -2,11 +2,13 @@ import galaxyTexture from "../assets/galaxy_texture.jpg";
 import BlueGalaxyTexture from "../assets/blue_galaxy_texture.jpg"
 import HomeDisplay from "./HomeDisplay";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 
 export default function Home() {
 
   const navigate = useNavigate();
+  const { loggedIn } = useAuth();
 
 
   return (<>
@@ -69,8 +71,8 @@ export default function Home() {
             Upload, edit, and manage your own characters! Favorite other user's characters! Generate a color palette for inspiration!
             We provide multiple services to aid in your character managing and developing experience.
           </p>
-
-          <button className="btn btn-primary hover:scale-105 hover:transition btn-xl sekuya-regular" onClick={() => navigate("/", {replace:true})}>Get Started Today</button>
+          { loggedIn ? <button className="btn btn-primary hover:scale-105 hover:transition btn-xl sekuya-regular">Welcome back!</button> :
+          <button className="btn btn-primary hover:scale-105 hover:transition btn-xl sekuya-regular" onClick={() => navigate("/", {replace:true})}>Get Started Today</button>}
           
         </div>
       </div>

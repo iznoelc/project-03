@@ -47,7 +47,11 @@ export default function useNotifications(user){
         // the front end, and updates the notifications so the new notification appears without requiring a refetch.
         channel.bind("new-notification", (data) => {
             setNotifications((prev) => [data, ...prev]);
-        })
+        });
+
+        channel.bind("notification-read", (data) => {
+            setNotifications((prev) => prev.map(n => n._id === data._id ? { ...n, read: data.read } : n));
+        });
 
         // cleanup
         return () => {

@@ -8,7 +8,7 @@ export const postNotification = async (sender, receiver, type, body, token) => {
     console.log("[POSTING NOTIFICATION]");
         try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/notifications`, {
-        method: "POST",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
@@ -31,8 +31,28 @@ export const postNotification = async (sender, receiver, type, body, token) => {
     }
 }
 
-export function markAsRead(){
+export const markAsRead = async (_id, token) => {
     console.log("[MARKING NOTIFICATION AS READ]");
+    try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/notifications/mark-as-read/${_id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                read: true,
+            }),
+        });
+
+        if (!res.ok){
+            throw new Error(`[ERROR MARKING NOTIFICATION AS READ ${_id}] Status: ${res.status}`);
+        }
+
+        console.log("NOTIFICATION'S MARKED READ SUCCESSFULLY");
+    } catch (error){
+        console.error("[NOTIFICATION GET ERROR]: ", error);
+    }
 }
 
 // get all notifications for a user

@@ -88,39 +88,6 @@ export default function SignUpPage(){
         }
         setSignUpLoading(false);
     }
-
-    // handle user signing up with google
-    const handleGoogleSignUp = async () => {
-        setSignUpLoading(true);
-
-        try {
-            const result = await signInWithGoogle();
-            const user = result.user;
-
-            console.log(user);
-
-            const tempFormData = {
-                displayName: user.displayName,
-                username: user.email.split('@')[0].slice(0,11) + user.uid.slice(0,4), // make username by taking first 11 charas of email (if too long) and then the 4 first digits of ui to create a username thats 15 char or less
-                role: formData.role,
-                accountStatus: formData.accountStatus,
-            };
-
-            // create the user in the database
-            const token = await user.getIdToken();
-            await handleCreateUserInDatabase(token, user, tempFormData, signOutUser);
-            
-            await fetchUser(user.uid, token); // update user in auth provider ASAP
-            successNotify("Account created successfully! You are now logged in.");
-
-            navigate("/", { replace: true });
-        } catch (error) {
-            console.error("Error signing in with Google: ", error);
-            errorNotify("Error signing in with Google, please try again.");
-        } finally {
-            setSignUpLoading(false);
-        }
-    }
     
     if (signUpLoading) return <FallbackElement />
 
@@ -238,8 +205,6 @@ export default function SignUpPage(){
                 
             </fieldset>
             </form>
-            <p className="secondary-font mt-4 text-center"><i>OR</i></p>
-            <button type="button" className="btn btn-neutral mt-4" onClick={handleGoogleSignUp}><FcGoogle /> Sign up with Google</button>
         </div>
     )
 }

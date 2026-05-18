@@ -28,7 +28,7 @@ router.get("/check-username", checkUsernameAvailability)
 router.get("/:uid", verifyFirebaseToken, getUserByUID);
 
 //get all users
-router.get("/", verifyFirebaseToken, getAllUsers);
+router.get("/", getAllUsers);
 
 // edit user in the database
 router.patch("/:uid", verifyFirebaseToken, updateUser);

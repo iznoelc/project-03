@@ -57,4 +57,35 @@ async function getNotificationsForAUser(req, res) {
     }
 }
 
-module.exports = { postNotification, getNotificationsForAUser };
+async function markAsRead(req, res){
+    try {
+        // make sure receiver of notification is current user
+        console.log("marking notification as read");
+
+        const currentNotification = await Notification.findOne({_id: req.params.id});
+
+        if (!currentNotification) { return res.status(404).json({ error: "Invalid notification." })} // no notification, return
+
+        if (req.body.read !== undefined){
+            currentNotification.read = req.body.read;
+        }
+
+        const patched = await Notification.findOneAndUpdate(
+            { _id: req.params.id },
+            { $set: { read: currentNotification.read } },
+            { returnDocument: "after" }
+        );
+
+        // trigger pusher to update notifications when one is marked as read
+        await pusher.trigger(`user-${patched.receiver}`, 'notification-read', {
+            _id: patched._id,
+            read: patched.read,
+        });
+
+        return res.status(200).json({ notification: patched });
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+}
+
+module.exports = { postNotification, getNotificationsForAUser, markAsRead };

@@ -4,6 +4,7 @@ import useAuth from "../hooks/useAuth";
 import { toast, ToastContainer } from "react-toastify";
 import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
+import FallbackElement from "../components/FallbackElement";
 
 
 /**
@@ -63,9 +64,7 @@ export default function Explore(){
     
     if (loading) {
         return (
-        <div className="flex justify-center items-center p-16">
-            <span className="loading loading-spinner loading-lg"></span>
-        </div>
+            <FallbackElement />
         );
     }
 

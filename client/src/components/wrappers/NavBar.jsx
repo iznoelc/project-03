@@ -69,6 +69,9 @@ export default function NavBar(){
                         )}>
                     Dashboard
                 </a></li>
+                <li><a onClick={() => navigate("/favorites-dashboard", { replace: true })}>
+                    Favorites
+                </a></li>
                 <li><a className="btn" onClick={signOutUser}>Logout</a></li>
             </ul>
             </div>

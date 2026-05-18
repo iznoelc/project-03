@@ -74,7 +74,7 @@ export default function FavoriteCharacterDashboard(){
 
     return (
         <>
-            <h1>Your Favorite Characters</h1>
+            <h1 className="text-center text-4xl p-8">Your Favorite Characters</h1>
 
             <SearchBar data={characters} />
 

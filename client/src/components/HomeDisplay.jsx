@@ -8,7 +8,7 @@ import useFavoriteCharacters from "../hooks/useFavoriteCharacter";
 
 export default function HomeDisplay(){
 
-    const { user, favChars} = useAuth(); 
+    const { user, favChars, loggedIn } = useAuth(); 
 
     // User array for display of creator display names
     const [users, setUsers] = useState({});
@@ -149,7 +149,8 @@ export default function HomeDisplay(){
                                     {d.name}
                                 </h2>
                                 <h3 className="text-lg">
-                                {d.owner_uid !== null ? `@${users[d.owner_uid]?.user?.username}` : "Unknown User"}
+                                    {loggedIn && (d.owner_uid !== null ? `@${users[d.owner_uid]?.user?.username}` : "Unknown User")}
+                                
                                 </h3>
                                 
                                 

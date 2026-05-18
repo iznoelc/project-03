@@ -1,10 +1,16 @@
 import { FaBell } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 import useNotifications from "../../hooks/useNotifications";
+import { markAsRead } from "../../utils/Notifications";
 
 export default function Notifications(){
     const { user } = useAuth();
     const { notifications } = useNotifications(user);
+
+    const read = async (_id) => {
+        const token = await user.getIdToken();
+        await markAsRead(_id, token);
+    }
 
     return (
         <div className="dropdown dropdown-end drop-shadow-2xl z-50">
@@ -25,7 +31,7 @@ export default function Notifications(){
                         <h2 className="card-title">{notif.type}</h2>
                         <p>{notif.notifBody}</p>
                         <div className="justify-end card-actions">
-                        {!notif.read && <button className="btn btn-primary">Mark as Read</button>}
+                        {!notif.read && <button className="btn btn-primary" onClick={() => read(notif._id)}>Mark as Read</button>}
                         </div>
                     </div>
                 </div>
