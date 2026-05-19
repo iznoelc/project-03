@@ -8,23 +8,23 @@ A full stack character managing website. Users can upload, edit, and delete thei
 ## TEAM, CONTRIBUTIONS, AND PROOF OF COLLABORATION
 - Izzy Carlson (Project Manager)
     - Authentication and Routing
-    - Database Setup and Validation
+    - Database Setup, Server Setup, and Validation
     - User Profile
     - Notification System
     - Main UI Designer
-    - Debugging
     - Deploy
+    - README
+
 - Landon Chapin
     - Search (Explore)
-    - Character creation page
-    - Favorites Page (Favorites Dashboard)
+    - Character Creation Page
+    - Favorites Dashboard
     - Home Page
-    - UML
 
 - Esperanza Paulino
     - Admin Dashboard
     - Creator Dashboard
-    - Color Pallette API
+    - Color Palette API
     - Character Details Page
     - Mock Character Data
 
@@ -47,8 +47,8 @@ We communicated via Discord and managed a Google Document with weekly tasks and 
     - React Icons
     - React Toastify
     - Firebase
-    - Pusher-js
-    - Pico colors
+    - Pusher JS
+    - Pico Colors
     - ImgBB
 - Backend
     - Node.js + Express.js
@@ -199,14 +199,11 @@ We communicated via Discord and managed a Google Document with weekly tasks and 
 ## KEY DESIGN DECISIONS
 ### STACK
 **We chose to use the full MERN stack (MongoDB, Express, React, Node.js) with Firebase auth and Pusher for real time notifications.**
-We chose to use Firebase as auth because...
+We chose to use Firebase as auth because this project had a short development time and we wanted to use this time to work on core features of the application, rather than investing time into generating our own JWT or sessions. Firebase also provides a secure, production-ready solution. Additionally, although right now we are only using email authentication, Firebase provides multiple other providers (such as Google or X) should we want to expand our authentication options. 
 
 #### TRADE OFFS AND CHALLENGES
 **Live Updates**
 - We opted **Pusher** over Server Sent Events (SSE) as a quicker development decision, since this project had a 3-week time constraint. Additionally, **Pusher** was chosen over WebSockets because live updates were only needed for notifications, which is a 1-way connection. We made this decision understanding that in the future, extra implementation may be needed in the future in the event this product expands. 
-
-### Database Schema
-(WIP)
 
 ## ASSETS
 - [Site Icon](https://www.svgrepo.com/svg/156619/telescope)

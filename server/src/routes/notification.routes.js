@@ -9,7 +9,7 @@
 const express = require("express");
 const router = express.Router();
 const { verifyFirebaseToken } = require("../middleware/verifyFirebaseToken");
-const { postNotification, getNotificationsForAUser, markAsRead } = require("../controllers/notification.controller");
+const { postNotification, getNotificationsForAUser, markAsRead, deleteNotification } = require("../controllers/notification.controller");
 
 // mark a notification as read
 router.patch("/mark-as-read/:id", verifyFirebaseToken, markAsRead);
@@ -19,5 +19,7 @@ router.post("/", verifyFirebaseToken, postNotification);
 
 // get a notification by the user's uid
 router.get("/:uid", verifyFirebaseToken, getNotificationsForAUser);
+
+router.delete("/:id", verifyFirebaseToken, deleteNotification)
 
 module.exports = router;

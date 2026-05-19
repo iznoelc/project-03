@@ -59,9 +59,6 @@ async function getNotificationsForAUser(req, res) {
 
 async function markAsRead(req, res){
     try {
-        // make sure receiver of notification is current user
-        console.log("marking notification as read");
-
         const currentNotification = await Notification.findOne({_id: req.params.id});
 
         if (!currentNotification) { return res.status(404).json({ error: "Invalid notification." })} // no notification, return
@@ -88,4 +85,30 @@ async function markAsRead(req, res){
     }
 }
 
-module.exports = { postNotification, getNotificationsForAUser, markAsRead };
+async function deleteNotification(req, res){
+    console.log("REQ USER:", req.user);
+    console.log("REQ BODY:", req.body);
+    try {
+        const notif = await Notification.findOne({_id: req.params.id});
+
+        if (!notif){
+            return res.status(404).json({error: "Trying to delete a notiication that was not found."});
+        }
+
+        const deleted = await Notification.findOneAndDelete({ _id: req.params.id });
+
+        if (!deleted) {
+            return res.status(404).json({ error: "Error deleting notification from the database." });
+        }
+
+        await pusher.trigger(`user-${deleted.receiver}`, 'notification-deleted', {
+            _id: deleted._id,
+        });
+
+        res.status(200).json({ message: "Notification deleted successfully from the database!" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+module.exports = { postNotification, getNotificationsForAUser, markAsRead, deleteNotification };

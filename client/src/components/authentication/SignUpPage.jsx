@@ -9,7 +9,6 @@ import useUsernameCheck from "../../hooks/useUsernameCheck"
 import FallbackElement from "../FallbackElement";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 
 import { successNotify, errorNotify } from "../../utils/ToastifyNotifications";
 
@@ -19,7 +18,7 @@ export default function SignUpPage(){
     const navigate = useNavigate();
 
     // auth
-    const { createUser, loggedIn, fetchUser, signOutUser, signInWithGoogle } = useAuth();
+    const { createUser, loggedIn, fetchUser, signOutUser } = useAuth();
     const [signUpLoading, setSignUpLoading] = useState(false);
 
     const [formData, setFormData] = useState({

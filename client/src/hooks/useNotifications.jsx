@@ -49,8 +49,15 @@ export default function useNotifications(user){
             setNotifications((prev) => [data, ...prev]);
         });
 
+        // listens for event with the notification-read label. when the trigger fires, the notifications are updated to mark which ever ones
+        // were marked as read to read.
         channel.bind("notification-read", (data) => {
             setNotifications((prev) => prev.map(n => n._id === data._id ? { ...n, read: data.read } : n));
+        });
+
+        // listens for event with notification-deleted label. when the trigger fires, the notifications are updated to remove the deleted one.
+        channel.bind("notification-deleted", (data) => {
+            setNotifications((prev) => prev.filter(n => n._id !== data._id));
         });
 
         // cleanup

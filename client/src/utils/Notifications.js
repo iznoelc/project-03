@@ -78,10 +78,24 @@ export const getAllNotifications = async (uid, token) => {
     }
 }
 
-export function getAllUnreadNotifications(){
-    console.log("[GETTING ALL UNREAD NOTIFICATIONS]");
-}
-
-export function deleteNotification(){
+export const deleteNotification = async (_id, token) => {
     console.log("[DELETING NOTIFICATION]");
+    try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/notifications/${_id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!res.ok){
+            throw new Error(`[ERROR DELETING NOTIFICATION FROM DATABASE] Status: ${res.status}`);
+        }
+
+        console.log("NOTIFICATION DELETED SUCCESSFULLY");
+
+    } catch (error){
+        console.error("[ERROR]: ", error);
+    }
 }
