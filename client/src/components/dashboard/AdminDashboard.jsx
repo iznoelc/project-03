@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
+import { postNotification } from "../../utils/Notifications";
 
 /**
  * AdminDashboard.jsx
@@ -174,16 +175,19 @@ async function fetchUsers(setUsersList, user) {
 
 async function Enable(user, userId, setUsersList) {
     try {
+        const token = await user.getIdToken();
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${await user.getIdToken()}`,
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ accountStatus: "active" }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        await postNotification(user.uid, userId, "ENABLED", "Your account has been re-enabled!", token);
 
         setUsersList(prev =>
             prev.map(u =>
@@ -221,16 +225,19 @@ async function Delete(user, userId, setUsersList) {
 
 async function Disable(currentUser, userId, setUsersList) {
     try {
+        const token = await currentUser.getIdToken();
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${await currentUser.getIdToken()}`,
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ accountStatus: "disabled" }),
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        await postNotification(currentUser.uid, userId, "DISABLED", "Your account has been disabled", token);
 
         setUsersList(prev =>
             prev.map(u =>

@@ -10,26 +10,27 @@ import useAuth from "../hooks/useAuth";
 import { FavoriteCharacterContext } from "./FavoriteCharacterContext";
 import { normalizeId } from "../utils/NormalizeCharacterId";
 import { errorNotify, successNotify } from "../utils/ToastifyNotifications";
+import { postNotification } from "../utils/Notifications";
 
 
 // set up what the context will do. for favorite movies, it creates functions to add to favorites, remove from favorites, and the favorites list
 // make sure it takes children as a prop, because this allows all components wrapped in this component access to the context.
 export default function FavoriteJobProvider({children}) {
-  const { user, favChars, setFavChars, fetchUser } = useAuth();
+  const { user, favChars, setFavChars, fetchUser, dbUser } = useAuth();
 
     /* add a movie to the favorites list, but dont add it if its already in the list. if its already in the list, give an alert */
-    const addToFav = async (characterName, characterObject) => {
+    const addToFav = async (characterName, characterObject, characterOwner) => {
           try {
               const cleanFavCharacters = (favChars || []).map(normalizeId);
               // const updatedFavJobs = [...cleanFavJobs, jobObject];
               const newId = normalizeId(characterObject);
               setFavChars([...cleanFavCharacters, newId]);
-
+              const token = await user.getIdToken();
               const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}`, {
               method: "PATCH",
                   headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${await user.getIdToken()}`,
+                    Authorization: `Bearer ${token}`,
                   },
                   body: JSON.stringify({
                     favChars: [...cleanFavCharacters, normalizeId(characterObject)]
@@ -39,6 +40,13 @@ export default function FavoriteJobProvider({children}) {
               if (!res.ok){
                   throw new Error(`HTTP error! status: ${res.status}`);
               }
+
+              console.log("Posting notif");
+              
+              const notifType = "NEW FAVORITE";
+              const notifBody = dbUser.user?.username + " liked your character " + characterName;
+
+              await postNotification(user.uid, characterOwner, notifType, notifBody, token);
 
               // setFavJobs(updatedFavJobs);
               await fetchUser(user.uid, await user.getIdToken()); // re-fetch populated data

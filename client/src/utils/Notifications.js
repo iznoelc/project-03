@@ -4,7 +4,7 @@
  * @author: Izzy Carlson
  */
 
-export const postNotification = async (sender, receiver, type, body, token) => {
+export const postNotification = async (sender, receiver, type, notifBody, token) => {
     console.log("[POSTING NOTIFICATION]");
         try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/notifications`, {
@@ -17,7 +17,8 @@ export const postNotification = async (sender, receiver, type, body, token) => {
                 sender: sender,
                 receiver: receiver,
                 type: type,
-                notifBody: body,
+                read: false,
+                notifBody: notifBody,
             }),
         });
 

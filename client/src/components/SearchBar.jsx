@@ -258,7 +258,7 @@ export default function SearchBar({ data: initialData }){
                                                 onClick={
                                                 isFavorite(d._id)
                                                     ? () => removeFromFav(d.name, d._id)
-                                                    : () => addToFav(d.name, d)
+                                                    : () => addToFav(d.name, d, d.owner_uid)
                                                 }
                                             >
                                                 {isFavorite(d._id) ? <FaStar /> : <FaRegStar />}
