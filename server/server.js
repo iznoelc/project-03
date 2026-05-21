@@ -1,7 +1,6 @@
 // this is the same as "index.js" from mini-project-7
 // src: https://github.com/FahmidaHamid/backend-with-dbms-authorization
 
-
 require("dotenv").config();
 if (process.env.LOCAL_DNS_FIX === "true") {
   require("./localFix.js");
@@ -14,7 +13,18 @@ const port = process.env.PORT || 3000; //just some port
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // local
+    "https://constellation-software-engineering.netlify.app" // Deployed
+  ]
+}));
+
+
+
+
+
+
 
 // routes
 const userRoutes = require("./src/routes/user.routes");
