@@ -7,9 +7,19 @@
  */
 
 const admin = require("firebase-admin");
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT 
-    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-    : require("../../constellation-7f808-firebase-admin.json");
+
+let serviceAccount;
+
+if (process.env.FIREBASE_ADMIN) {
+  // Railway / production
+  serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN);
+
+  // Fix newline formatting
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+} else {
+  // Local development
+  serviceAccount = require("../../constellation-7f808-firebase-admin.json");
+}
 
 // initialize firebase admin
 admin.initializeApp({
