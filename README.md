@@ -1,7 +1,7 @@
 # Constellation
 A full stack character managing website. Users can upload, edit, and delete their own characters and manage them from the creator dashboard. They can also view and favorite other's characters and manage them on a favorites dashboard. Admins can manage the site through the admin dashboard and explore page.
 
-## Live Link: (WIP)
+## Live Link: https://constellation-software-engineering.netlify.app/
 
 ## Demo Video Link: (WIP)
 
@@ -12,7 +12,6 @@ A full stack character managing website. Users can upload, edit, and delete thei
     - User Profile
     - Notification System
     - Main UI Designer
-    - Deploy
     - README
 
 - Landon Chapin
@@ -20,6 +19,7 @@ A full stack character managing website. Users can upload, edit, and delete thei
     - Character Creation Page
     - Favorites Dashboard
     - Home Page
+    - Deploy
 
 - Esperanza Paulino
     - Admin Dashboard
@@ -141,7 +141,13 @@ We communicated via Discord and managed a Google Document with weekly tasks and 
 | POST   | /characters     | Post a new character to the database |
 | DELETE | /character/:id  | Delete a character based on their id |
 
-**Notifications (WIP)**
+**Notifications**
+| Method | Endpoint                        | Description                                            |
+|--------|---------------------------------|--------------------------------------------------------|
+| PATCH  | /notifications/mark-as-read/:id | Mark a specific notification as read                   |
+| POST   | /notifications/                 | Post a new notification                                |
+| GET    | /notifications/:uid             | Get all notifications for a specific user by their uid |
+| DELETE | /notifications/:id              | Delete a specific notification by its id               |
 
 ## FRONTEND ROUTES
 **Public**
