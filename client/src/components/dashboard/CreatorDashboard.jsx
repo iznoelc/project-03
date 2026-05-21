@@ -177,7 +177,7 @@ function Search(list, query) {
 
 async function getPalette() {
   try {
-    const res = await fetch("http://colormind.io/api/", {
+    const res = await fetch("https://colormind.io/api/", {
       method: "POST",
       body: JSON.stringify({ model: "default" })
     });
