@@ -3,8 +3,6 @@ A full stack character managing website. Users can upload, edit, and delete thei
 
 ## Live Link: https://constellation-software-engineering.netlify.app/
 
-## Demo Video Link: (WIP)
-
 ## TEAM, CONTRIBUTIONS, AND PROOF OF COLLABORATION
 - Izzy Carlson (Project Manager)
     - Authentication and Routing
